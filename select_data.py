@@ -35,39 +35,34 @@ def write_to_text():
     np.savetxt('test_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
 
 
-def select_data(data_set, const_name, const_value, var_name):
-    """
-    :param data_set:        Dataset, for example, 'rudder0deg', 'rudderminus10deg', ...
-    :param const_name:      Name of the variables that are kept constant
-    :param const_value:     Value of the constant variable, for example const_name = 'rpsM1' and const_value = '92'
-                            only returns data points for which the rps of the first motor equals 92
-    :param var_name:        Names of the data that has to be returned
-    :return:
-    """
+def select_data_txt(const_name, const_value, var_name, header_names):
+
+    # Import data
+    data        = np.genfromtxt('test_data.txt', skip_header = 1)
+    data_return = np.zeros((len(data[:, 0]), len(var_name)))
 
     # Make an empty array to store the data
-    data = np.zeros((len(Balance().windOn(data_set, 'AoS')), len(var_name)))
-    idx  = np.ones(len(Balance().windOn(data_set, 'AoS')), dtype = bool)
-
-    # Get the balance data
-    Balance_Data = Balance()
+    idx = np.ones(len(data[:, 0]), dtype=bool)
 
     # Go through the list of data that is kept constant and find the indices of where they are equal to the preset value
     for i in range(len(const_name)):
 
+        const_idx = header_names.index(const_name[i])
+
         # Find indices of where the data should be selected
         if const_value[i] == 0:
-            idx = idx*np.isclose(Balance_Data.windOn(data_set, const_name[i])[:, 0], const_value[i], atol = 1e-2)
+            idx = idx * np.isclose(data[:, const_idx], const_value[i], atol=1e-2)
+
         else:
-            idx = idx * np.isclose(Balance_Data.windOn(data_set, const_name[i])[:, 0], const_value[i], rtol=1e-2)
+            idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=1e-2)
 
     # Store all the data needed in one array
     for j in range(len(var_name)):
-
-        data[:, j] = Balance_Data.windOn(data_set, var_name[j])[:, 0]
+        index   = header_names.index(var_name[j])
+        data_return[:, j] = data[:, index]
 
     # Clip data and return
-    return data[idx]
+    return data_return[idx]
 
 
 if __name__ == '__main__':
@@ -82,8 +77,10 @@ if __name__ == '__main__':
     'CD', 'O'), ('CYaw', 'O'), ('CMroll', 'O'), ('CMpitch', 'O'), ('CMpitch25c', 'O'), ('CMyaw', 'O'), ('b', 'O'), (
     'c', 'O'), ('S', 'O')]))
     """
-    J1 = select_data('rudderminus10deg', ['AoA', 'Re', 'rpsM1'], [5, 339000, 92], ['AoS', 'CMyaw'])
-    J2 = select_data('rudderminus10deg', ['AoA', 'Re', 'rpsM1'], [5, 339000, 66], ['AoS', 'CMyaw'])
+    J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'],
+                         ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
+    J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'],
+                         ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
 
     aos1 = J1[:, 0]
     cn1  = J1[:, 1]
@@ -96,6 +93,41 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
-    write_to_text()
+    # write_to_text()
+
+# def select_data(data_set, const_name, const_value, var_name):
+#     """
+#     :param data_set:        Dataset, for example, 'rudder0deg', 'rudderminus10deg', ...
+#     :param const_name:      Name of the variables that are kept constant
+#     :param const_value:     Value of the constant variable, for example const_name = 'rpsM1' and const_value = '92'
+#                             only returns data points for which the rps of the first motor equals 92
+#     :param var_name:        Names of the data that has to be returned
+#     :return:
+#     """
+#
+#     # Make an empty array to store the data
+#     data = np.zeros((len(Balance().windOn(data_set, 'AoS')), len(var_name)))
+#     idx  = np.ones(len(Balance().windOn(data_set, 'AoS')), dtype = bool)
+#
+#     # Get the balance data
+#     Balance_Data = Balance()
+#
+#     # Go through the list of data that is kept constant and find the indices of where they are equal to the preset value
+#     for i in range(len(const_name)):
+#
+#         # Find indices of where the data should be selected
+#         if const_value[i] == 0:
+#             idx = idx*np.isclose(Balance_Data.windOn(data_set, const_name[i])[:, 0], const_value[i], atol = 1e-2)
+#         else:
+#             idx = idx * np.isclose(Balance_Data.windOn(data_set, const_name[i])[:, 0], const_value[i], rtol=1e-2)
+#
+#     # Store all the data needed in one array
+#     for j in range(len(var_name)):
+#
+#         data[:, j] = Balance_Data.windOn(data_set, var_name[j])[:, 0]
+#
+#     # Clip data and return
+#     return data[idx]
+#
 
 
