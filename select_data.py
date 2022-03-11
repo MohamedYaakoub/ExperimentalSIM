@@ -82,19 +82,19 @@ if __name__ == '__main__':
     'CD', 'O'), ('CYaw', 'O'), ('CMroll', 'O'), ('CMpitch', 'O'), ('CMpitch25c', 'O'), ('CMyaw', 'O'), ('b', 'O'), (
     'c', 'O'), ('S', 'O')]))
     """
-    # J1 = select_data('rudderminus10deg', ['AoA', 'Re', 'rpsM1'], [5, 339000, 92], ['AoS', 'CMyaw'])
-    # J2 = select_data('rudderminus10deg', ['AoA', 'Re', 'rpsM1'], [5, 339000, 66], ['AoS', 'CMyaw'])
-    #
-    # aos1 = J1[:, 0]
-    # cn1  = J1[:, 1]
-    #
-    # aos2 = J2[:, 0]
-    # cn2  = J2[:, 1]
-    #
-    # plt.plot(aos1, cn1, label = 'rps = 92')
-    # plt.plot(aos2, cn2, label = 'rps = 66')
-    # plt.legend()
-    # plt.show()
+    J1 = select_data('rudderminus10deg', ['AoA', 'Re', 'rpsM1'], [5, 339000, 92], ['AoS', 'CMyaw'])
+    J2 = select_data('rudderminus10deg', ['AoA', 'Re', 'rpsM1'], [5, 339000, 66], ['AoS', 'CMyaw'])
+
+    aos1 = J1[:, 0]
+    cn1  = J1[:, 1]
+
+    aos2 = J2[:, 0]
+    cn2  = J2[:, 1]
+
+    plt.plot(aos1, cn1, label = 'rps = 92')
+    plt.plot(aos2, cn2, label = 'rps = 66')
+    plt.legend()
+    plt.show()
 
     write_to_text()
 
