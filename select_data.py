@@ -82,6 +82,7 @@ if __name__ == '__main__':
     J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'],
                          ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
 
+
     aos1 = J1[:, 0]
     cn1  = J1[:, 1]
 
