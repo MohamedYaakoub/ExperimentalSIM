@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from open_files import Balance
+from open_files import Balance, Pressure
 
 
-def write_to_text():
+def write_to_text_bal():
 
     # Datasets and variables that need to be stored
     data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart']
@@ -32,14 +32,57 @@ def write_to_text():
 
     # Make header for the file
 
-    np.savetxt('test_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
+    np.savetxt('balance_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
 
 
-def select_data_txt(const_name, const_value, var_name, header_names):
+def write_to_text_prs():
+
+    # Datasets and variables that need to be stored
+    data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart']
+    rudder    = [0, -10, 0, 0]
+    variables = ['run', 'dr', 'AoA', 'AoS', 'pTaps', 'CpTaps']
+
+    Pressure_Data = Pressure()
+
+    # Array to store all the data in
+    data = np.zeros((1, len(variables)+10))
+
+    for i in range(len(data_sets)):
+
+        # Make an empty array to store the data for this dataset
+        set_array = np.zeros((len(Pressure_Data.find(data_sets[i], variables[0])[:, 0]), len(variables)-2))
+
+        for j in range(len(variables)):
+            if j == 1:
+                set_array[:, j] = rudder[i]
+            # Pressure data contains six fields, these are appended to the end of the array
+            elif variables[j] == 'pTaps' or variables[j] == 'CpTaps':
+                set_array = np.hstack((set_array, Pressure_Data.find(data_sets[i], variables[j])))
+            else:
+                # Store the data for each variable
+                set_array[:, j] = Pressure_Data.find(data_sets[i], variables[j])[:, 0]
+
+        # Append data from dataset to big array
+        data = np.vstack((data, set_array))
+
+    # Make header for the file
+    p_hdr = []
+    cp_hdr = []
+    for i in range(6):
+        p_hdr.append('pTaps' + str(i))
+        cp_hdr.append('CpTaps' + str(i))
+
+    header = variables[:-2] + p_hdr + cp_hdr
+
+    np.savetxt('pressure_data.txt', data[1:, :], header = '         '.join(header), fmt = '%10.5f')
+
+
+def select_data_txt(const_name, const_value, var_name):
 
     # Import data
-    data        = np.genfromtxt('test_data.txt', skip_header = 1)
-    data_return = np.zeros((len(data[:, 0]), len(var_name)))
+    data            = np.genfromtxt('test_data.txt', skip_header = 1)
+    data_return     = np.zeros((len(data[:, 0]), len(var_name)))
+    header_names    = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw']
 
     # Make an empty array to store the data
     idx = np.ones(len(data[:, 0]), dtype=bool)
@@ -77,11 +120,11 @@ if __name__ == '__main__':
     'CD', 'O'), ('CYaw', 'O'), ('CMroll', 'O'), ('CMpitch', 'O'), ('CMpitch25c', 'O'), ('CMyaw', 'O'), ('b', 'O'), (
     'c', 'O'), ('S', 'O')]))
     """
-    J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'],
-                         ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
-    J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'],
-                         ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
 
+    write_to_text_prs()
+
+    J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'])
+    J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'])
 
     aos1 = J1[:, 0]
     cn1  = J1[:, 1]
