@@ -77,11 +77,12 @@ def write_to_text_prs():
     np.savetxt('pressure_data.txt', data[1:, :], header = '         '.join(header), fmt = '%10.5f')
 
 
-def select_data_txt(const_name, const_value, var_name, header_names):
+def select_data_txt(const_name, const_value, var_name):
 
     # Import data
-    data        = np.genfromtxt('test_data.txt', skip_header = 1)
-    data_return = np.zeros((len(data[:, 0]), len(var_name)))
+    data            = np.genfromtxt('test_data.txt', skip_header = 1)
+    data_return     = np.zeros((len(data[:, 0]), len(var_name)))
+    header_names    = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw']
 
     # Make an empty array to store the data
     idx = np.ones(len(data[:, 0]), dtype=bool)
@@ -122,10 +123,8 @@ if __name__ == '__main__':
 
     write_to_text_prs()
 
-    J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'],
-                         ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
-    J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'],
-                         ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
+    J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'])
+    J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'])
 
     aos1 = J1[:, 0]
     cn1  = J1[:, 1]
