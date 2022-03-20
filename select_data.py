@@ -32,7 +32,7 @@ def write_to_text_bal():
 
     # Make header for the file
 
-    np.savetxt('balance_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
+    np.savetxt('test_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
 
 
 def write_to_text_prs():

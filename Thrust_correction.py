@@ -4,7 +4,7 @@ import numpy as np
 # run, dr, AoA, AoS, J_M1, J_M2, Re, CL, CD, CY, CMpitch, CMyaw, rho, V, rpsM1, rpsM2
 
 # Read original data from text file
-data = np.genfromtxt('balance_data.txt')
+data = np.genfromtxt('test_data.txt')
 
 # Retrieve lift and drag coefficients and other necessary data (uncorrected for thrust)
 AoA = np.deg2rad(data[:, 2])
