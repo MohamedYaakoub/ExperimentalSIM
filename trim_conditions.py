@@ -2,6 +2,7 @@ import numpy as np
 from select_data import select_data_txt
 import matplotlib.pyplot as plt
 
+# Test
 
 def trim(AoS, AoA, Re, J):
     """
