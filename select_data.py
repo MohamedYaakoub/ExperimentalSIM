@@ -8,7 +8,7 @@ def write_to_text_bal():
     # Datasets and variables that need to be stored
     data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart']
     rudder    = [0, -10, 0, 0]
-    variables = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw']
+    variables = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho', 'V', 'rpsM1', 'rpsM2']
 
     Balance_Data = Balance()
 
@@ -120,8 +120,8 @@ if __name__ == '__main__':
     'CD', 'O'), ('CYaw', 'O'), ('CMroll', 'O'), ('CMpitch', 'O'), ('CMpitch25c', 'O'), ('CMyaw', 'O'), ('b', 'O'), (
     'c', 'O'), ('S', 'O')]))
     """
-
-    write_to_text_prs()
+    write_to_text_bal()
+    # write_to_text_prs()
 
     J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'])
     J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'])
