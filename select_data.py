@@ -77,12 +77,13 @@ def write_to_text_prs():
     np.savetxt('pressure_data.txt', data[1:, :], header = '         '.join(header), fmt = '%10.5f')
 
 
-def select_data_txt(const_name, const_value, var_name):
+def select_data_txt(const_name, const_value, var_name, file_name = 'test_data.txt'):
 
     # Import data
-    data            = np.genfromtxt('test_data.txt', skip_header = 1)
+    data            = np.genfromtxt(file_name, skip_header = 1)
     data_return     = np.zeros((len(data[:, 0]), len(var_name)))
-    header_names    = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw']
+    header_names    = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho',
+                       'V', 'rpsM1', 'rpsM2', 'CL_uncorr', 'CD_uncorr']
 
     # Make an empty array to store the data
     idx = np.ones(len(data[:, 0]), dtype=bool)

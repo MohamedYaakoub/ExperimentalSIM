@@ -2,7 +2,6 @@ import numpy as np
 from select_data import select_data_txt
 import matplotlib.pyplot as plt
 
-# Test
 
 def trim(AoS, AoA, Re, J):
     """
@@ -20,7 +19,7 @@ def trim(AoS, AoA, Re, J):
     # Find the aerodynamic coefficients at the given conditions
     # this should return data for at least two different rudder angles
     coeffs = select_data_txt(['AoA', 'AoS', 'Re', 'J_M1'], [AoA, AoS, Re, J],
-                             ['dr', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'])
+                             ['dr', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'], file_name='test_data_corr_thrust.txt')
 
     dr = coeffs[:, 0]
     CL = coeffs[:, 1]
@@ -41,6 +40,8 @@ def trim(AoS, AoA, Re, J):
     D = np.polyfit(dr, CD, deg = 1)
     L = np.polyfit(dr, CL, deg = 1)
 
+    print('CD', CD)
+
     # Lift and drag at equilibrium
     CD_eq = D[0]*dr_eq + D[1]
     CL_eq = L[0]*dr_eq + L[1]
@@ -60,9 +61,9 @@ if __name__ == '__main__':
     r_eq = np.zeros(len(beta))
 
     for i in range(len(beta)):
-        dreq, cd_eq, cl_eq = trim(beta[i], 0, 339769, 1.75)
+        dreq, cd_eq, cl_eq = trim(beta[i], 5, 339769, 1.75)
         r_eq[i] = dreq
-        print(i, cl_eq)
+        print(i, cl_eq, cd_eq)
         clcd[i] = cl_eq/cd_eq
 
     plt.plot(beta, clcd, 'x-')

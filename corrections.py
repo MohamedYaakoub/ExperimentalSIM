@@ -49,12 +49,11 @@ class Corrections:
     def zero_lift_drag(self, data_point):
 
         # For each datapoint, keep everything constant apart from AoA, CL and CD
-        data = select_data_txt(['AoS', 'Re', 'J_M1', 'dr'], [data_point[3], data_point[6], data_point[4], data_point[1]], ['AoA', 'CL', 'CD', 'run'])
+        data = select_data_txt(['AoS', 'Re','J_M1', 'dr'], [data_point[3], data_point[6], data_point[4], data_point[1]],
+                               ['AoA', 'CL_uncorr', 'CD_uncorr', 'run'], file_name='test_data_corr_thrust.txt')
 
         cl   = data[:, 1]
         cd   = data[:, 2]
-
-        # TODO: correct CL and CD for thrust
 
         # Fit a line through the CL^2 - CD graph to find cd0
         poly_clcd = np.polyfit(cl**2, cd, deg = 1)
