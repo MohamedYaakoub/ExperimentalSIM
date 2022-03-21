@@ -142,13 +142,13 @@ class Corrections:
 
         # Get thrust from thrust coefficient ---------------
         # CT = T/rho/n^2/D^4
-        T = CTs * rho * n**2 * self.D**4  # N - Per propeller!!! TODO: revise whether to multiply by 2 here or later
+        T = CTs * rho * n**2 * self.D**4  # N - Per propeller!
 
         # Thrust coefficient for correction (With propeller area as reference area)
         Tc = T / (0.5 * rho * V**2 * self.Sp)
 
-        # Correction factor TODO: multiply by 2?
-        e_ss = -Tc/(2 * np.sqrt(1 + 2*Tc)) * self.Sp/self.C
+        # Correction factor (multiplied by 2 because there are 2 propellers)
+        e_ss = 2 * (-Tc/(2 * np.sqrt(1 + 2*Tc)) * self.Sp/self.C)
 
         return e_ss
 
