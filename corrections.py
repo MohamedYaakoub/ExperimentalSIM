@@ -29,8 +29,11 @@ class Corrections:
     D = 0.2032               # m
     Sp = np.pi / 4 * D ** 2  # m^2
 
-    def __init__(self, data_for_correction):
+    # lift int
+    b_wing = 1.397
+    wing_mac = 0.165
 
+    def __init__(self, data_for_correction):
         self.data = data_for_correction
 
     def solid_blockage_element(self, K, part_volume):
@@ -57,7 +60,7 @@ class Corrections:
         cd   = data[:, 2]
 
         # Fit a line through the CL^2 - CD graph to find cd0
-        poly_clcd = np.polyfit(cl**2, cd, deg = 1)
+        poly_clcd = np.polyfit(cl ** 2, cd, deg=1)
         cd_0 = poly_clcd[1]
 
         return cd_0
@@ -68,26 +71,25 @@ class Corrections:
         N_pts = len(self.data[:, 0])
 
         # Array to store correction
-        e_wb  = np.zeros(N_pts)
+        e_wb = np.zeros(N_pts)
 
         # Loop through all the points and find the zero lift drag for that specific case
         for i in range(N_pts):
-
             cd_0 = self.zero_lift_drag(self.data[i, :])
 
-            e_wb[i] = self.S*cd_0/(4*self.C)
+            e_wb[i] = self.S * cd_0 / (4 * self.C)
 
         return e_wb
 
     def slipstream_blockage(self):
 
         # Retrieve necessary data
-        J1 = self.data[:, 4]    # J is used to retrieve CT from graph, so it is rounded, so only J1 is used
+        J1 = self.data[:, 4]  # J is used to retrieve CT from graph, so it is rounded, so only J1 is used
         rho = self.data[:, 12]
         V = self.data[:, 13]
         n1 = self.data[:, 14]
         n2 = self.data[:, 15]
-        n = (n1 + n2) / 2       # Average n from both engines to get T
+        n = (n1 + n2) / 2  # Average n from both engines to get T
 
         # Thrust coefficient at each condition (from graph)
         CT_data = np.array([[0.30155, 0.23681, 0.14191, 0.044346],  # V = 30 m/s - J: [1.6,  1.75, 2,     2.25]
@@ -142,19 +144,32 @@ class Corrections:
 
         # Get thrust from thrust coefficient ---------------
         # CT = T/rho/n^2/D^4
-        T = CTs * rho * n**2 * self.D**4  # N - Per propeller!!! TODO: revise whether to multiply by 2 here or later
+        T = CTs * rho * n ** 2 * self.D ** 4  # N - Per propeller!
 
         # Thrust coefficient for correction (With propeller area as reference area)
-        Tc = T / (0.5 * rho * V**2 * self.Sp)
+        Tc = T / (0.5 * rho * V ** 2 * self.Sp)
 
-        # Correction factor TODO: multiply by 2?
-        e_ss = -Tc/(2 * np.sqrt(1 + 2*Tc)) * self.Sp/self.C
+        # Correction factor (multiplied by 2 because there are 2 propellers)
+        e_ss = 2 * (-Tc / (2 * np.sqrt(1 + 2 * Tc)) * self.Sp / self.C)
 
         return e_ss
 
+    def lift_interference_main_wing(self):
+        b_v = self.b_wing * 0.78
+        be = (self.b_wing + b_v) / 2
+        delta = 0.105
+        alpha_up = delta * 0.2172 / self.C  # clw
+
+        tau_2 = 0.135
+        alpha_sc = 0.5 * self.wing_mac * alpha_up * tau_2
+
+        CD_W = delta * self.S / self.C #Clw^2
+        CM = 1/8 * alpha_sc #Cla
+
+        return alpha_up + alpha_sc, CD_W, CM
+
 
 if __name__ == '__main__':
-
     # Import the data
     unc_data = np.genfromtxt('test_data.txt')
     corr = Corrections(unc_data)
