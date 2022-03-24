@@ -96,5 +96,5 @@ data = np.hstack((data, CD_uncorr.T))
 
 # Save to text file
 variables = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho', 'V', 'rpsM1',
-             'rpsM2', 'CL_uncorr', 'CD_uncorr']
+             'rpsM2', 'de', 'CL_uncorr', 'CD_uncorr']
 np.savetxt('test_data_corr_thrust.txt', data, header='        '.join(variables), fmt='%10.5f')

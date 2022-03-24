@@ -60,8 +60,11 @@ class Corrections:
         cd   = data[:, 2]
 
         # Fit a line through the CL^2 - CD graph to find cd0
-        poly_clcd = np.polyfit(cl ** 2, cd, deg=1)
-        cd_0 = poly_clcd[1]
+        try:
+            poly_clcd = np.polyfit(cl ** 2, cd, deg=1)
+            cd_0 = poly_clcd[1]
+        except:
+            print(data[:, 3], cl, cd)
 
         return cd_0
 
@@ -157,11 +160,12 @@ class Corrections:
     def CL_W(self, data_point):
 
         # For each datapoint, keep everything constant apart from AoA, CL and CD
-        data = select_data_txt(['AoA', 'AoS'],
-                               [data_point[2], data_point[3]], ['AoA', 'CL', 'CD', 'run'],
+        data = select_data_txt(['AoA', 'AoS', 'Re'],
+                               [data_point[2], data_point[3], data_point[6]], ['AoA', 'CL', 'CD', 'run'],
                                file_name='tail_off_data.txt')
+
         cl = data[:, 0]
-        # cd = data[:, 2]
+
         return cl
 
     def lift_interference_main_wing(self):
@@ -188,6 +192,11 @@ class Corrections:
 
         return alpha_up + alpha_sc, CD_W, CM
 
+    def strut_correction(self):
+
+        model_off = np.genfromtxt('model_off.txt')
+
+
 
 if __name__ == '__main__':
     # Import the data
@@ -200,3 +209,7 @@ if __name__ == '__main__':
     # corr.wake_blockage()
     # corr.solid_blockage()
     # corr.slipstream_blockage()
+    corr.wake_blockage()
+    corr.solid_blockage()
+    corr.slipstream_blockage()
+    corr.strut_correction()

@@ -126,7 +126,8 @@ def select_data_txt(const_name, const_value, var_name, file_name = 'test_data.tx
         # Find indices of where the data should be selected
         if np.isclose(const_value[i], 0, atol = 1e-2):
             idx = idx * np.isclose(data[:, const_idx], const_value[i], atol=1e-2)
-
+        elif const_name[i] == 'Re':
+            idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=1e-1)
         else:
             idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=1e-2)
 
