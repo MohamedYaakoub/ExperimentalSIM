@@ -113,8 +113,7 @@ def select_data_txt(const_name, const_value, var_name, file_name = 'test_data.tx
     # Import data
     data            = np.genfromtxt(file_name, skip_header = 1)
     data_return     = np.zeros((len(data[:, 0]), len(var_name)))
-    header_names    = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho',
-                       'V', 'rpsM1', 'rpsM2', 'CL_uncorr', 'CD_uncorr']
+    header_names = open(file_name, 'r').readlines()[0].split()[1:]
 
     # Make an empty array to store the data
     idx = np.ones(len(data[:, 0]), dtype=bool)
@@ -125,7 +124,7 @@ def select_data_txt(const_name, const_value, var_name, file_name = 'test_data.tx
         const_idx = header_names.index(const_name[i])
 
         # Find indices of where the data should be selected
-        if const_value[i] == 0:
+        if np.isclose(const_value[i], 0, atol = 1e-2):
             idx = idx * np.isclose(data[:, const_idx], const_value[i], atol=1e-2)
 
         else:

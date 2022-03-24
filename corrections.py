@@ -154,10 +154,30 @@ class Corrections:
 
         return e_ss
 
+    def CL_W(self, data_point):
+
+        # For each datapoint, keep everything constant apart from AoA, CL and CD
+        data = select_data_txt(['AoA', 'AoS'],
+                               [data_point[2], data_point[3]], ['AoA', 'CL', 'CD', 'run'],
+                               file_name='tail_off_data.txt')
+        cl = data[:, 0]
+        # cd = data[:, 2]
+        return cl
+
     def lift_interference_main_wing(self):
         b_v = self.b_wing * 0.78
         be = (self.b_wing + b_v) / 2
         delta = 0.105
+
+        N_pts = len(self.data[:, 0])
+
+        alpha_up = np.zeros(N_pts)
+
+        for i in range(N_pts):
+            CL_w = self.CL_W(self.data[i, :])
+            print(CL_w)
+            # alpha_up[i] = self.S * cd_0 / (4 * self.C)
+
         alpha_up = delta * 0.2172 / self.C  # clw
 
         tau_2 = 0.135
@@ -171,10 +191,12 @@ class Corrections:
 
 if __name__ == '__main__':
     # Import the data
-    unc_data = np.genfromtxt('test_data.txt')
+    unc_data = np.genfromtxt('test_data_corr_thrust.txt')
     corr = Corrections(unc_data)
+    corr.lift_interference_main_wing()
+
 
     # Test run
-    corr.wake_blockage()
-    corr.solid_blockage()
-    corr.slipstream_blockage()
+    # corr.wake_blockage()
+    # corr.solid_blockage()
+    # corr.slipstream_blockage()
