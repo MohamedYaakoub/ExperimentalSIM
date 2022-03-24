@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from open_files import Balance, Pressure
+from open_files import Balance, Pressure, Tail_off
 
 
 def write_to_text_bal():
 
     # Datasets and variables that need to be stored
-    data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart']
-    rudder    = [0, -10, 0, 0]
-    variables = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho', 'V', 'rpsM1', 'rpsM2']
+    data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart', 'rudder0deg_elevator5deg']
+    rudder    = [0, -10, 0, 0, 0]
+    elevator  = [0, 0, 0, 0, 5]
+    variables = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho', 'V', 'rpsM1', 'rpsM2', 'de']
 
     Balance_Data = Balance()
 
@@ -23,6 +24,8 @@ def write_to_text_bal():
         for j in range(len(variables)):
             if j == 1:
                 set_array[:, j] = rudder[i]
+            elif j == 16:
+                set_array[:, j] = elevator[i]
             else:
                 # Store the data for each variable
                 set_array[:, j] = Balance_Data.windOn(data_sets[i], variables[j])[:, 0]
@@ -33,6 +36,34 @@ def write_to_text_bal():
     # Make header for the file
 
     np.savetxt('test_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
+
+
+def write_to_text_bal_tailoff():
+
+    # Datasets and variables that need to be stored
+    data_sets = ['tailOff_alfa0_balance', 'tailOff_alfa0_V50_balance', 'tailOff_alfa5_betaSweep_balance',
+                 'tailOff_alfa10_betaSweep_balance', 'tailOff_beta0_balance', 'tailOff_beta0_V50_balance']
+    variables = ['run', 'AoA', 'AoS', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho', 'V', 'rpsM1', 'rpsM2']
+
+    Balance_Data = Tail_off()
+
+    # Array to store all the data in
+    data = np.zeros((1, len(variables)))
+
+    for i in range(len(data_sets)):
+
+        # Make an empty array to store the data for this dataset
+        set_array = np.zeros((len(Balance_Data.windOn(data_sets[i], variables[0])[:, 0]), len(variables)))
+
+        for j in range(len(variables)):
+            set_array[:, j] = Balance_Data.windOn(data_sets[i], variables[j])[:, 0]
+
+        # Append data from dataset to big array
+        data = np.vstack((data, set_array))
+
+    # Make header for the file
+
+    np.savetxt('tail_off_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
 
 
 def write_to_text_prs():
@@ -122,6 +153,8 @@ if __name__ == '__main__':
     'c', 'O'), ('S', 'O')]))
     """
     write_to_text_bal()
+    write_to_text_bal_tailoff()
+
     # write_to_text_prs()
 
     J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'])

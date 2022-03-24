@@ -36,9 +36,21 @@ class Microphone:
         return vec
 
 
+class Tail_off:
+    def __init__(self):
+        self.Balance_data = loadmat('Data/Tail_off_balance.mat')['BAL']
+
+    def windOn(self, key1, key2):
+        vec = self.Balance_data["windOn"][0, 0][key1][0, 0][0, 0][key2]
+        return vec
+
+
 def main():
 
     # Import these classes into your code and get the values the following examples
+
+    Tail_off_data = Tail_off()
+    print(Tail_off_data.windOn('tailOff_alfa0_balance', 'FZ'))
 
     # For getting Balance example
     Balance_Data = Balance()
@@ -49,7 +61,6 @@ def main():
     Pressure_Data = Pressure()
     my_press_values = Pressure_Data.find('rudder0deg_restart', 'pTaps')
     print(f'Density values for 0 deg rudder during the restarted part of the experiment -- {my_press_values}')
-
 
 
 if __name__ == '__main__':

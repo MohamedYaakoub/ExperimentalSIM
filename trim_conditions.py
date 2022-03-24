@@ -35,12 +35,16 @@ def trim(AoS, AoA, Re, J):
 
     # Finding the rudder angle for zero yawing moment
     dr_eq = -Cn0/Cn_dr
-
+    print(Cn_dr)
     # Finding the variation of lift and drag with rudder deflection (assuming a linear relationship)
     D = np.polyfit(dr, CD, deg = 1)
     L = np.polyfit(dr, CL, deg = 1)
 
-    print('CD', CD)
+    plt.plot(dr, CD, 'o', label = 'AoS' + str(AoS))
+    r = np.arange(-10, 0, 0.01)
+    plt.plot(r, D[0]*r + D[1])
+    plt.legend()
+    plt.show()
 
     # Lift and drag at equilibrium
     CD_eq = D[0]*dr_eq + D[1]
@@ -61,12 +65,17 @@ if __name__ == '__main__':
     r_eq = np.zeros(len(beta))
 
     for i in range(len(beta)):
-        dreq, cd_eq, cl_eq = trim(beta[i], 5, 339769, 1.75)
+        dreq, cd_eq, cl_eq = trim(beta[i], 5, 339769, 1.99)
         r_eq[i] = dreq
-        print(i, cl_eq, cd_eq)
-        clcd[i] = cl_eq/cd_eq
+
+        clcd[i] = cd_eq  # cl_eq/cd_eq
+
+    coeffs = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.75, 0],
+                             ['AoS', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'],
+                             file_name= 'test_data_corr_thrust.txt')
 
     plt.plot(beta, clcd, 'x-')
+    plt.plot(coeffs[:, 0], coeffs[:, 2])
     plt.show()
 
     plt.plot(beta, r_eq, 'o-')

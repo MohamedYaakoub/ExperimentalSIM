@@ -1,7 +1,7 @@
 import numpy as np
 
 # File format:
-# run, dr, AoA, AoS, J_M1, J_M2, Re, CL, CD, CY, CMpitch, CMyaw, rho, V, rpsM1, rpsM2
+# run, dr, AoA, AoS, J_M1, J_M2, Re, CL, CD, CY, CMpitch, CMyaw, rho, V, rpsM1, rpsM2, de
 
 # Read original data from text file
 data = np.genfromtxt('test_data.txt')
