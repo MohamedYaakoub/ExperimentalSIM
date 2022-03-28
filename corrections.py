@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from select_data import select_data_txt
 
@@ -108,11 +109,8 @@ class Corrections:
         cd   = data[:, 2]
 
         # Fit a line through the CL^2 - CD graph to find cd0
-        try:
-            poly_clcd = np.polyfit(cl ** 2, cd, deg=1)
-            cd_0 = poly_clcd[1]
-        except:
-            print(data[:, 3], cl, cd)
+        poly_clcd = np.polyfit(cl ** 2, cd, deg=5)
+        cd_0 = poly_clcd[1]
 
         return cd_0
 
@@ -211,10 +209,33 @@ class Corrections:
         data = select_data_txt(['AoA', 'AoS', 'Re'],
                                [data_point[2], data_point[3], data_point[6]], ['AoA', 'CL', 'CD', 'run'],
                                file_name='tail_off_data.txt')
-
-        cl = data[:, 0]
-
+        cl = np.mean(data[:, 1])
+        # cd = data[:, 2]
         return cl
+
+    def CL_alpha(self, data_point):
+
+        # For each datapoint, keep everything constant apart from AoA, CL and CD
+        data = select_data_txt(['AoS', 'Re'],
+                               [data_point[3], data_point[6]], ['AoA', 'CL', 'CD', 'run'],
+                               file_name='tail_off_data.txt')
+
+        alpha = data[:, 0]
+        cl   = data[:, 1]
+
+        alpha = alpha[~np.isnan(cl)]
+        cl = cl[~np.isnan(cl)]
+
+        plt.plot(alpha, cl)
+        plt.grid()
+        # plt.show()
+
+        # Fit a line through the CL^2 - CD graph to find cd0
+        poly_cl_alpha = np.polyfit(alpha, cl, deg=1)
+        x = np.linspace(-5, 5, 100)
+        cl_a = np.gradient(x, poly_cl_alpha[0] * x + poly_cl_alpha[1])
+
+        return np.mean(cl_a)
 
     def lift_interference_main_wing(self):
         b_v = self.b_wing * 0.78
@@ -227,23 +248,23 @@ class Corrections:
 
         for i in range(N_pts):
             CL_w = self.CL_W(self.data[i, :])
-            print(CL_w)
+            alpha_up[i] = delta * self.S / CL_w  # clw
             # alpha_up[i] = self.S * cd_0 / (4 * self.C)
-
-        alpha_up = delta * 0.2172 / self.C  # clw
 
         tau_2 = 0.135
         alpha_sc = 0.5 * self.wing_mac * alpha_up * tau_2
 
-        CD_W = delta * self.S / self.C #Clw^2
-        CM = 1/8 * alpha_sc #Cla
+        CD_W = np.zeros(N_pts)
+        for i in range(1):
+            CL_w = self.CL_W(self.data[i, :])
+            CD_W[i] = delta * self.S / self.C * CL_w ** 2
+
+        CM = np.zeros(N_pts)
+        for i in range(N_pts):
+            CL_a = self.CL_alpha(self.data[i, :])
+            CM[i] = 1/8 * alpha_sc[i] * CL_a
 
         return alpha_up + alpha_sc, CD_W, CM
-
-    def strut_correction(self):
-
-        model_off = np.genfromtxt('model_off.txt')
-
 
 
 if __name__ == '__main__':
@@ -257,7 +278,3 @@ if __name__ == '__main__':
     # corr.wake_blockage()
     # corr.solid_blockage()
     # corr.slipstream_blockage()
-    corr.wake_blockage()
-    corr.solid_blockage()
-    corr.slipstream_blockage()
-    corr.strut_correction()
