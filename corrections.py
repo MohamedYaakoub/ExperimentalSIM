@@ -3,7 +3,7 @@ import numpy as np
 from select_data import select_data_txt
 
 
-def model_off(file_name = 'test_data_corr_thrust.txt'):
+def model_off(file_name = 'Data_txt/test_data_corr_thrust.txt'):
 
     K = 0.9                     # Correction factor
     C = 2.07                    # Wind tunnel cross section
@@ -28,11 +28,13 @@ def model_off(file_name = 'test_data_corr_thrust.txt'):
         # Correction for angle of attack and sideslip separately
         off_aoa = np.mean(select_data_txt(['AoA'],
                                           [data_point[header_names.index('AoA')]],
-                                          ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name ='Data_txt/model_off_aoa.txt'), axis = 0)
+                                          ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name ='Data_txt/model_off_aoa'
+                                                                                             '.txt'), axis = 0)
 
         off_aos = np.mean(select_data_txt(['AoS'],
                                           [data_point[header_names.index('AoS')]],
-                                          ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name ='Data_txt/model_off_aos.txt'), axis = 0)
+                                          ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name ='Data_txt/model_off_aos'
+                                                                                             '.txt'), axis = 0)
 
         # Add corrections together
         off = off_aoa + off_aos
