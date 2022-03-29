@@ -27,12 +27,12 @@ def model_off(file_name = 'test_data_corr_thrust.txt'):
 
         # Correction for angle of attack and sideslip separately
         off_aoa = np.mean(select_data_txt(['AoA'],
-                              [data_point[header_names.index('AoA')]],
-                              ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name = 'model_off_aoa.txt'), axis = 0)
+                                          [data_point[header_names.index('AoA')]],
+                                          ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name ='Data_txt/model_off_aoa.txt'), axis = 0)
 
         off_aos = np.mean(select_data_txt(['AoS'],
-                              [data_point[header_names.index('AoS')]],
-                              ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name = 'model_off_aos.txt'), axis = 0)
+                                          [data_point[header_names.index('AoS')]],
+                                          ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name ='Data_txt/model_off_aos.txt'), axis = 0)
 
         # Add corrections together
         off = off_aoa + off_aos
@@ -100,7 +100,7 @@ class Corrections:
 
         # For each datapoint, keep everything constant apart from AoA, CL and CD
         data = select_data_txt(['AoS', 'Re', 'J_M1', 'dr'], [data_point[3], data_point[6], data_point[4], data_point[1]],
-                               ['AoA', 'CL_uncorr', 'CD_uncorr', 'run'], file_name='test_data_corr_thrust.txt')
+                               ['AoA', 'CL_uncorr', 'CD_uncorr', 'run'], file_name='Data_txt/test_data_corr_thrust.txt')
 
         cl   = data[:, 1]
         cd   = data[:, 2]
@@ -205,7 +205,7 @@ class Corrections:
         # For each datapoint, keep everything constant apart from AoA, CL and CD
         data = select_data_txt(['AoA', 'AoS', 'Re'],
                                [data_point[2], data_point[3], data_point[6]], ['AoA', 'CL', 'CD', 'run'],
-                               file_name='tail_off_data.txt')
+                               file_name='Data_txt/tail_off_data.txt')
         cl = np.mean(data[:, 1])
         # cd = data[:, 2]
         return cl
@@ -215,7 +215,7 @@ class Corrections:
         # For each datapoint, keep everything constant apart from AoA, CL and CD
         data = select_data_txt(['AoS', 'Re'],
                                [data_point[3], data_point[6]], ['AoA', 'CL', 'CD', 'run'],
-                               file_name='tail_off_data.txt')
+                               file_name='Data_txt/tail_off_data.txt')
 
         alpha = data[:, 0]
         cl   = data[:, 1]
@@ -283,7 +283,7 @@ class Corrections:
 
 if __name__ == '__main__':
     # Import the data
-    unc_data = np.genfromtxt('test_data_corr_thrust.txt')
+    unc_data = np.genfromtxt('Data_txt/test_data_corr_thrust.txt')
     corr = Corrections(unc_data)
     corr.lift_interference_main_wing()
 

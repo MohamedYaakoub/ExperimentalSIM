@@ -19,7 +19,7 @@ def trim(AoS, AoA, Re, J):
     # Find the aerodynamic coefficients at the given conditions
     # this should return data for at least two different rudder angles
     coeffs = select_data_txt(['AoA', 'AoS', 'Re', 'J_M1'], [AoA, AoS, Re, J],
-                             ['dr', 'de', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'], file_name='test_data_corr_thrust.txt')
+                             ['dr', 'de', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'], file_name='Data_txt/test_data_corr_thrust.txt')
 
     # Find elevator trim
     # There is no elevator data for AoS bigger then 5, so instead use the Cmde for a lower sideslip.
@@ -27,7 +27,7 @@ def trim(AoS, AoA, Re, J):
     if AoS > 5.5:
         coeffs_de = select_data_txt(['AoA', 'AoS', 'Re', 'J_M1'], [AoA, AoS-5, Re, J],
                                     ['dr', 'de', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'],
-                                    file_name='test_data_corr_thrust.txt')
+                                    file_name='Data_txt/test_data_corr_thrust.txt')
 
         de = coeffs_de[:, 1]
         Cm = coeffs_de[:, 5]
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     coeffs = select_data_txt(['AoA', 'Re', 'J_M1', 'dr', 'de'], [5, 339000, 1.75, 0, 0],
                              ['AoS', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw', 'run'],
-                             file_name= 'test_data_corr_thrust.txt')
+                             file_name='Data_txt/test_data_corr_thrust.txt')
     print(coeffs[:, -1])
 
     plt.plot(beta, clcd, 'x-')
