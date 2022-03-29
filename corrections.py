@@ -277,7 +277,7 @@ class Corrections:
         tau_2_t = 0.75
         alpha_sc = 3.22 * 0.165 * alpha_up * tau_2_t
 
-        cm_a = 0.7777
+        cm_a = -0.842 * 180 / np.pi
         CM = cm_a * (alpha_up + alpha_sc)
         return CM
 
@@ -304,7 +304,8 @@ if __name__ == '__main__':
     data_f['CMyaw'] = data_f['CMyaw'] * (1 + e) ** -2
 
     # lift interference
-    data_f['AoA'] = data_f['AoA'] + alpha_l
+    data_f['AoA'] = data_f['AoA'] + np.rad2deg(alpha_l)
+    print(np.rad2deg(alpha_l))
     data_f['CD'] = data_f['CD'] + CD_W_l
 
     # down wash
