@@ -106,7 +106,7 @@ class Corrections:
         cd   = data[:, 2]
 
         # Fit a line through the CL^2 - CD graph to find cd0
-        poly_clcd = np.polyfit(cl ** 2, cd, deg=5)
+        poly_clcd = np.polyfit(cl ** 2, cd, deg=1)
         cd_0 = poly_clcd[1]
 
         return cd_0
