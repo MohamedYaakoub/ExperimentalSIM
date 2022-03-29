@@ -3,6 +3,54 @@ import numpy as np
 from select_data import select_data_txt
 
 
+def model_off(file_name = 'test_data_corr_thrust.txt'):
+
+    K = 0.9                     # Correction factor
+    C = 2.07                    # Wind tunnel cross section
+    V_wing_str = 0.001765*2     # Front strut
+    V_aft      = 0.000196   # Aft strut
+    V = 2*V_wing_str + V_aft
+
+    # Correction factor for solid blockage
+    e_sb = 0.9*V/(C**(3/2))
+
+    # Import the data points to be corrected
+    data = np.genfromtxt(file_name)
+
+    # Get headers
+    header_names = open(file_name, 'r').readlines()[0].split()[1:]
+    data[0, 0] -= 1
+
+    for i in range(len(data[:, 0])):
+
+        data_point = data[i, :]
+
+        # Correction for angle of attack and sideslip separately
+        off_aoa = np.mean(select_data_txt(['AoA'],
+                              [data_point[header_names.index('AoA')]],
+                              ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name = 'model_off_aoa.txt'), axis = 0)
+
+        off_aos = np.mean(select_data_txt(['AoS'],
+                              [data_point[header_names.index('AoS')]],
+                              ['CD', 'Cy', 'CL', 'CMpitch', 'CMyaw'], file_name = 'model_off_aos.txt'), axis = 0)
+
+        # Add corrections together
+        off = off_aoa + off_aos
+
+        # Correct model off data
+        off_corr = off/((1 + e_sb)**2)
+        data[i, header_names.index('CD_uncorr')]    -= off_corr[0]
+        data[i, header_names.index('CY')]           -= off_corr[1]
+        data[i, header_names.index('CL_uncorr')]    -= off_corr[2]
+        data[i, header_names.index('CMpitch')]      -= off_corr[3]
+        data[i, header_names.index('CMyaw')]        -= off_corr[4]
+
+    np.savetxt('test_data_thrust_model_off_corr.txt', data, header = '        '.join(header_names), fmt='%10.5f')
+
+
+model_off()
+
+
 class Corrections:
 
     # ===== Model geometry ====
