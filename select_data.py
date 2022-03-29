@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from open_files import Balance, Pressure
+from open_files import Balance, Pressure, Tail_off
 
 
 def write_to_text_bal():
 
     # Datasets and variables that need to be stored
-    data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart']
-    rudder    = [0, -10, 0, 0]
-    variables = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw']
+    data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart', 'rudder0deg_elevator5deg']
+    rudder    = [0, -10, 0, 0, 0]
+    elevator  = [0, 0, 0, 0, 5]
+    variables = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho', 'V', 'rpsM1', 'rpsM2', 'de']
 
     Balance_Data = Balance()
 
@@ -23,6 +24,8 @@ def write_to_text_bal():
         for j in range(len(variables)):
             if j == 1:
                 set_array[:, j] = rudder[i]
+            elif j == 16:
+                set_array[:, j] = elevator[i]
             else:
                 # Store the data for each variable
                 set_array[:, j] = Balance_Data.windOn(data_sets[i], variables[j])[:, 0]
@@ -32,7 +35,35 @@ def write_to_text_bal():
 
     # Make header for the file
 
-    np.savetxt('balance_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
+    np.savetxt('test_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
+
+
+def write_to_text_bal_tailoff():
+
+    # Datasets and variables that need to be stored
+    data_sets = ['tailOff_alfa0_balance', 'tailOff_alfa0_V50_balance', 'tailOff_alfa5_betaSweep_balance',
+                 'tailOff_alfa10_betaSweep_balance', 'tailOff_beta0_balance', 'tailOff_beta0_V50_balance']
+    variables = ['run', 'AoA', 'AoS', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw', 'rho', 'V', 'rpsM1', 'rpsM2']
+
+    Balance_Data = Tail_off()
+
+    # Array to store all the data in
+    data = np.zeros((1, len(variables)))
+
+    for i in range(len(data_sets)):
+
+        # Make an empty array to store the data for this dataset
+        set_array = np.zeros((len(Balance_Data.windOn(data_sets[i], variables[0])[:, 0]), len(variables)))
+
+        for j in range(len(variables)):
+            set_array[:, j] = Balance_Data.windOn(data_sets[i], variables[j])[:, 0]
+
+        # Append data from dataset to big array
+        data = np.vstack((data, set_array))
+
+    # Make header for the file
+
+    np.savetxt('tail_off_data.txt', data[1:, :], header = '        '.join(variables), fmt = '%10.5f')
 
 
 def write_to_text_prs():
@@ -77,12 +108,12 @@ def write_to_text_prs():
     np.savetxt('pressure_data.txt', data[1:, :], header = '         '.join(header), fmt = '%10.5f')
 
 
-def select_data_txt(const_name, const_value, var_name):
+def select_data_txt(const_name, const_value, var_name, file_name = 'test_data.txt'):
 
     # Import data
-    data            = np.genfromtxt('test_data.txt', skip_header = 1)
+    data            = np.genfromtxt(file_name, skip_header = 1)
     data_return     = np.zeros((len(data[:, 0]), len(var_name)))
-    header_names    = ['run', 'dr', 'AoA', 'AoS', 'J_M1', 'J_M2', 'Re', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw']
+    header_names = open(file_name, 'r').readlines()[0].split()[1:]
 
     # Make an empty array to store the data
     idx = np.ones(len(data[:, 0]), dtype=bool)
@@ -93,9 +124,10 @@ def select_data_txt(const_name, const_value, var_name):
         const_idx = header_names.index(const_name[i])
 
         # Find indices of where the data should be selected
-        if const_value[i] == 0:
+        if np.isclose(const_value[i], 0, atol = 1e-2):
             idx = idx * np.isclose(data[:, const_idx], const_value[i], atol=1e-2)
-
+        elif const_name[i] == 'Re':
+            idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=1e-1)
         else:
             idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=1e-2)
 
@@ -120,8 +152,10 @@ if __name__ == '__main__':
     'CD', 'O'), ('CYaw', 'O'), ('CMroll', 'O'), ('CMpitch', 'O'), ('CMpitch25c', 'O'), ('CMyaw', 'O'), ('b', 'O'), (
     'c', 'O'), ('S', 'O')]))
     """
+    write_to_text_bal()
+    write_to_text_bal_tailoff()
 
-    write_to_text_prs()
+    # write_to_text_prs()
 
     J1 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, 0], ['AoS', 'CMyaw'])
     J2 = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.6, -10], ['AoS', 'CMyaw'])
@@ -172,6 +206,3 @@ if __name__ == '__main__':
 #
 #     # Clip data and return
 #     return data[idx]
-#
-
-

@@ -19,14 +19,45 @@ def trim(AoS, AoA, Re, J):
     # Find the aerodynamic coefficients at the given conditions
     # this should return data for at least two different rudder angles
     coeffs = select_data_txt(['AoA', 'AoS', 'Re', 'J_M1'], [AoA, AoS, Re, J],
-                             ['dr', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'], file_name='test_data_corr_thrust.txt')
+                             ['dr', 'de', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'], file_name='test_data_corr_thrust.txt')
+
+    # Find elevator trim
+    # There is no elevator data for AoS bigger then 5, so instead use the Cmde for a lower sideslip.
+    # It doesn't change too much anyway
+    if AoS > 5.5:
+        coeffs_de = select_data_txt(['AoA', 'AoS', 'Re', 'J_M1'], [AoA, AoS-5, Re, J],
+                                    ['dr', 'de', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'],
+                                    file_name='test_data_corr_thrust.txt')
+
+        de = coeffs_de[:, 1]
+        Cm = coeffs_de[:, 5]
+
+        p_de = np.polyfit(de, Cm, deg=1)
+        Cm_de = p_de[0]
+        Cm0 = p_de[1]
+
+        plt.plot(de, Cm)
+        plt.show()
+
+    else:
+        de = coeffs[:, 1]
+        Cm = coeffs[:, 5]
+
+        p_de = np.polyfit(de, Cm, deg=1)
+        Cm_de = p_de[0]
+        Cm0 = p_de[1]
+
+    # Find equilibrium elevator deflection
+    de_eq = -Cm0 / Cm_de
+
+    print(de_eq)
 
     dr = coeffs[:, 0]
-    CL = coeffs[:, 1]
-    CD = coeffs[:, 2]
-    CY = coeffs[:, 3]
-    Cm = coeffs[:, 4]
-    Cn = coeffs[:, 5]
+    CL = coeffs[:, 2]
+    CD = coeffs[:, 3]
+    CY = coeffs[:, 4]
+    Cm = coeffs[:, 5]
+    Cn = coeffs[:, 6]
 
     # Fit a line through the points for Cn and dr, the slope of this line is the stability derivative Cn_dr
     p = np.polyfit(dr, Cn, deg = 1)
@@ -35,16 +66,16 @@ def trim(AoS, AoA, Re, J):
 
     # Finding the rudder angle for zero yawing moment
     dr_eq = -Cn0/Cn_dr
-    print(Cn_dr)
+
     # Finding the variation of lift and drag with rudder deflection (assuming a linear relationship)
     D = np.polyfit(dr, CD, deg = 1)
     L = np.polyfit(dr, CL, deg = 1)
 
-    plt.plot(dr, CD, 'o', label = 'AoS' + str(AoS))
-    r = np.arange(-10, 0, 0.01)
-    plt.plot(r, D[0]*r + D[1])
-    plt.legend()
-    plt.show()
+    # plt.plot(dr, CD, 'o', label = 'AoS' + str(AoS))
+    # r = np.arange(-10, 0, 0.01)
+    # plt.plot(r, D[0]*r + D[1])
+    # plt.legend()
+    # plt.show()
 
     # Lift and drag at equilibrium
     CD_eq = D[0]*dr_eq + D[1]
@@ -65,14 +96,16 @@ if __name__ == '__main__':
     r_eq = np.zeros(len(beta))
 
     for i in range(len(beta)):
+
         dreq, cd_eq, cl_eq = trim(beta[i], 5, 339769, 1.99)
         r_eq[i] = dreq
 
         clcd[i] = cd_eq  # cl_eq/cd_eq
 
-    coeffs = select_data_txt(['AoA', 'Re', 'J_M1', 'dr'], [5, 339000, 1.75, 0],
-                             ['AoS', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw'],
+    coeffs = select_data_txt(['AoA', 'Re', 'J_M1', 'dr', 'de'], [5, 339000, 1.75, 0, 0],
+                             ['AoS', 'CL_uncorr', 'CD_uncorr', 'CY', 'CMpitch', 'CMyaw', 'run'],
                              file_name= 'test_data_corr_thrust.txt')
+    print(coeffs[:, -1])
 
     plt.plot(beta, clcd, 'x-')
     plt.plot(coeffs[:, 0], coeffs[:, 2])
