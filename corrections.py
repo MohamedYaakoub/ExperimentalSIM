@@ -291,16 +291,17 @@ if __name__ == '__main__':
 
     e = corr.solid_blockage() + corr.wake_blockage()
     e_slip = corr.slipstream_blockage()
-
     alpha_l, CD_W_l, CM_l = corr.lift_interference_main_wing()
     CM_d = corr.down_wash()
 
     # epsilon
     data_f['V'] = data_f['V'] * (1 + e)
     data_f['V'] = data_f['V'] * (1 + e_slip)  # slip stream
-    data_f['CL'] = data_f['CL'] * (1 + e) ** -2
-    data_f['CD'] = data_f['CD'] * (1 + e) ** -2
+    data_f['CL'] = data_f['CL_uncorr'] * (1 + e) ** -2
+    data_f['CD'] = data_f['CD_uncorr'] * (1 + e) ** -2
+    data_f['CY'] = data_f['CY'] * (1 + e) ** -2
     data_f['CMpitch'] = data_f['CMpitch'] * (1 + e) ** -2
+    data_f['CMyaw'] = data_f['CMyaw'] * (1 + e) ** -2
 
     # lift interference
     data_f['AoA'] = data_f['AoA'] + alpha_l
