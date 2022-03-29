@@ -129,7 +129,7 @@ def select_data_txt(const_name, const_value, var_name, file_name = 'test_data.tx
         elif const_name[i] == 'Re':
             idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=1e-1)
         else:
-            idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=5e-2)
+            idx = idx * np.isclose(data[:, const_idx], const_value[i], rtol=5.1e-2)
 
     # Store all the data needed in one array
     for j in range(len(var_name)):

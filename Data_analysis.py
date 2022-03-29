@@ -23,13 +23,17 @@ def Trimming():
     re_levels  = np.unique(np.round(data[:, 6] / 1e5, 1)) * 1e5          # Re  = [340000. 450000.]
     aoa_levels = np.unique(np.round(data[:, 2], 1))                      # AoA = [0. 5.]
     aos_levels = np.unique(np.round(data[:, 3], 1))                      # AoS = [-5.  0.  5. 10.]
-    j_levels   = np.unique(np.round(data[:, 4], 1))                      # j   = [1.6 1.8 2.  2.1 2.2 2.3]
+    aos_levels = aos_levels[aos_levels >= 0]                             # Check if >= 0 then keep it
 
-    # Reynolds low
+    dr_trim = np.zeros(len())
     for i in range(len(aos_levels)):
-        dr_trim = trim(aos_levels[i], aoa_levels[i], re_levels[i], j_levels[i])     # find rudder deflection
+        for k in range(len(re_levels)):
+            j_m1 = select_data_txt(['Re'], [re_levels[k]], ['J_M1'], file_name='Data_txt/Analysis_data.txt')    # select j based on Re
+            j_levels = np.unique(np.round(j_m1, 1))
+            for l in range(len(j_levels)):
+                dr = trim(aos_levels[i], aoa_levels[1], re_levels[k], j_levels[l])     # find rudder deflection
 
-    print(dr_trim)
+
 
     pass
 
