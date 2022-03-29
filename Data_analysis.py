@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import
 import matplotlib as plt
 
 
@@ -15,6 +16,7 @@ def Rudder_effectiveness():
 
 
 def Trimming():
+    data =
     pass
 
 
