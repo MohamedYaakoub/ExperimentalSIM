@@ -79,8 +79,10 @@ class Corrections:
     b_wing = 1.397
     wing_mac = 0.165
 
-    def __init__(self, data_for_correction):
+    def __init__(self, data_for_correction, file_location, tail_on = True):
         self.data = data_for_correction
+        self.file_location = file_location
+        self.tail = tail_on
 
     def solid_blockage_element(self, K, part_volume):
         return K * self.tau * part_volume / (self.C ** (3 / 2))
@@ -99,12 +101,22 @@ class Corrections:
     def zero_lift_drag(self, data_point):
 
         # For each datapoint, keep everything constant apart from AoA, CL and CD
-        data = select_data_txt(['AoS', 'Re', 'J_M1', 'dr'],
-                               [data_point[3], data_point[6], data_point[4], data_point[1]],
-                               ['AoA', 'CL_uncorr', 'CD_uncorr', 'run'], file_name='Data_txt/test_data_corr_thrust.txt')
+        if self.tail:
+            data = select_data_txt(['AoS', 'Re', 'J_M1', 'dr'],
+                                   [data_point[3], data_point[6], data_point[4], data_point[1]],
+                                   ['AoA', 'CL_uncorr', 'CD_uncorr', 'run'], file_name=self.file_location)
+        else:
+            header_names = open(self.file_location, 'r').readlines()[0].split()[1:]
+
+            data = select_data_txt(['AoS', 'Re'],
+                                   [data_point[header_names.index('AoS')], data_point[header_names.index('Re')]],
+                                   ['AoA', 'CL', 'CD', 'run'], file_name=self.file_location)
 
         cl = data[:, 1]
         cd = data[:, 2]
+
+        cd = cd[~np.isnan(cl)]
+        cl = cl[~np.isnan(cl)]
 
         # Fit a line through the CL^2 - CD graph to find cd0
         poly_clcd = np.polyfit(cl ** 2, cd, deg=1)
@@ -283,11 +295,32 @@ class Corrections:
 
 
 if __name__ == '__main__':
+
+    # Import the data
+    unc_data = np.genfromtxt('Data_txt/tail_off_data_uncorr.txt')
+    data_columns_tail_off = open('Data_txt/tail_off_data_uncorr.txt', 'r').readlines()[0].split()[1:]
+    data_f_tail_off = pd.DataFrame(unc_data, columns=data_columns_tail_off)
+    corr_tail_off = Corrections(unc_data, 'Data_txt/tail_off_data_uncorr.txt', tail_on=False)
+
+    e_tail_off = corr_tail_off.solid_blockage() + corr_tail_off.wake_blockage()
+
+    # epsilon
+    data_f_tail_off['V'] = data_f_tail_off['V'] * (1 + e_tail_off)
+    data_f_tail_off['CL'] = data_f_tail_off['CL'] * (1 + e_tail_off) ** -2
+    data_f_tail_off['CD'] = data_f_tail_off['CD'] * (1 + e_tail_off) ** -2
+    data_f_tail_off['CY'] = data_f_tail_off['CY'] * (1 + e_tail_off) ** -2
+    data_f_tail_off['CMpitch'] = data_f_tail_off['CMpitch'] * (1 + e_tail_off) ** -2
+    data_f_tail_off['CMyaw'] = data_f_tail_off['CMyaw'] * (1 + e_tail_off) ** -2
+
+    data_f_values_tail_off = data_f_tail_off.values
+    np.savetxt('Data_txt/tail_off_data.txt', data_f_values_tail_off,
+               header='        '.join(data_columns_tail_off), fmt='%10.5f')
+
     # Import the data
     unc_data = np.genfromtxt('Data_txt/test_data_thrust_model_off_corr.txt')
     data_columns = open('Data_txt/test_data_thrust_model_off_corr.txt', 'r').readlines()[0].split()[1:]
     data_f = pd.DataFrame(unc_data, columns=data_columns)
-    corr = Corrections(unc_data)
+    corr = Corrections(unc_data, 'Data_txt/test_data_thrust_model_off_corr.txt')
 
     e = corr.solid_blockage() + corr.wake_blockage()
     e_slip = corr.slipstream_blockage()
@@ -314,8 +347,6 @@ if __name__ == '__main__':
 
     # np.savetxt('Data_txt\Analysis_data.txt', data_columns, fmt='%s')
     np.savetxt('Data_txt\Analysis_data.txt', data_f_values, header='        '.join(data_columns), fmt='%10.5f')
-
-
 
     # Test run
     # corr.wake_blockage()
