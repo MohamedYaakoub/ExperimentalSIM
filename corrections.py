@@ -263,6 +263,23 @@ class Corrections:
 
         return alpha_up + alpha_sc, CD_W, CM
 
+    def down_wash(self):
+        N_pts = len(self.data[:, 0])
+
+        alpha_up = np.zeros(N_pts)
+
+        for i in range(N_pts):
+            delta = 0.105
+            CL_w = self.CL_W(self.data[i, :])
+            alpha_up[i] = delta * self.S / CL_w  # clw
+
+        tau_2_t = 0.75
+        alpha_sc = 3.22 * 0.165 * alpha_up * tau_2_t
+
+        cm_a = 0.7777
+        CM = cm_a * (alpha_up + alpha_sc)
+        return CM
+
 
 if __name__ == '__main__':
     # Import the data
