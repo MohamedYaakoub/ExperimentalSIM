@@ -246,7 +246,7 @@ class Corrections:
 
         for i in range(N_pts):
             CL_w = self.CL_W(self.data[i, :])
-            alpha_up[i] = delta * self.S / CL_w  # clw
+            alpha_up[i] = delta * self.S / self.C * CL_w  # clw
             # alpha_up[i] = self.S * cd_0 / (4 * self.C)
 
         tau_2 = 0.135
@@ -305,7 +305,7 @@ if __name__ == '__main__':
 
     # lift interference
     data_f['AoA'] = data_f['AoA'] + np.rad2deg(alpha_l)
-    print(np.rad2deg(alpha_l))
+    # print(np.rad2deg(alpha_l))
     data_f['CD'] = data_f['CD'] + CD_W_l
 
     # down wash
