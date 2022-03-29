@@ -289,7 +289,7 @@ class Corrections:
         tau_2_t = 0.75
         alpha_sc = 3.22 * 0.165 * alpha_up * tau_2_t
 
-        cm_a = -0.842 * 180 / np.pi
+        cm_a = -0.0842 * 180 / np.pi
         CM = cm_a * (alpha_up + alpha_sc)
         return CM
 
