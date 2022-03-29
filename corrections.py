@@ -12,7 +12,7 @@ def model_off(file_name = 'test_data_corr_thrust.txt'):
     V = 2*V_wing_str + V_aft
 
     # Correction factor for solid blockage
-    e_sb = 0.9*V/(C**(3/2))
+    e_sb = K*V/(C**(3/2))
 
     # Import the data points to be corrected
     data = np.genfromtxt(file_name)
@@ -46,9 +46,6 @@ def model_off(file_name = 'test_data_corr_thrust.txt'):
         data[i, header_names.index('CMyaw')]        -= off_corr[4]
 
     np.savetxt('test_data_thrust_model_off_corr.txt', data, header = '        '.join(header_names), fmt='%10.5f')
-
-
-model_off()
 
 
 class Corrections:
@@ -272,6 +269,8 @@ if __name__ == '__main__':
     unc_data = np.genfromtxt('test_data_corr_thrust.txt')
     corr = Corrections(unc_data)
     corr.lift_interference_main_wing()
+
+    model_off()
 
 
     # Test run
