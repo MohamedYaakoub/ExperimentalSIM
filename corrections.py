@@ -8,7 +8,7 @@ def model_off(file_name = 'test_data_corr_thrust.txt'):
     K = 0.9                     # Correction factor
     C = 2.07                    # Wind tunnel cross section
     V_wing_str = 0.001765*2     # Front strut
-    V_aft      = 0.000196   # Aft strut
+    V_aft      = 0.000196       # Aft strut
     V = 2*V_wing_str + V_aft
 
     # Correction factor for solid blockage
