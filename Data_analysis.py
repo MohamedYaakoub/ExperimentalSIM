@@ -134,7 +134,7 @@ def Trimming():
             ax.grid()
             ax.legend()
             fig.tight_layout()
-            # fig.savefig('Figures/cy_dr_re' + str(re) + '_aoa_' + str(aoa) + '.pdf')
+            fig.savefig('Figures/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
 
             plt.show()
 
