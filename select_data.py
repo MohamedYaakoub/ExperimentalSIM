@@ -114,6 +114,7 @@ def select_data_txt(const_name, const_value, var_name, file_name = 'test_data.tx
     data            = np.genfromtxt(file_name, skip_header = 1)
     data_return     = np.zeros((len(data[:, 0]), len(var_name)))
     header_names = open(file_name, 'r').readlines()[0].split()[1:]
+
     # Make an empty array to store the data
     idx = np.ones(len(data[:, 0]), dtype=bool)
 
