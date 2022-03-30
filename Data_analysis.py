@@ -174,24 +174,37 @@ def Trimming():
     aos_levels = np.unique(np.round(data[:, 3], 1))                      # AoS = [-5.  0.  5. 10.]
     aos        = aos_levels[aos_levels >= 0]                             # Check if >= 0 then keep it
 
+
     for i in range(len(aoa_levels)):                        # Loop the AoA
 
         for j in range(len(re_levels)):                     # Loop the Reynolds
 
             markers = ['x', 'o', 'D', '|']
 
-            fig, ax = plt.subplots()
+            fig, ax  = plt.subplots()
+            fig, ax1 = plt.subplots()
 
-            j_m1 = select_data_txt(['Re'], [re_levels[j]], ['J_M1'], file_name='Data_txt/Analysis_data.txt')    # select j based on Re
+            # select j based on Re
+            j_m1 = select_data_txt(['Re'], [re_levels[j]], ['J_M1'], file_name='Data_txt/Analysis_data.txt')
             j_levels = np.unique(np.round(j_m1, 1))
 
             for k in range(len(j_levels)):                  # Loop the j for 4 different setup according to the Reynolds
 
                 dr_trim = np.zeros(len(aos))                # Store the dr in each sideslip angle run
+                cd      = np.zeros(len(aos))                # store the cd in each sideslip angle run
                 for m in range(len(aos)):                   # Loop the AoS
-                    dr = trim(aos[m], aoa_levels[i], re_levels[j], j_levels[k])     # find trimmed rudder deflection of certain beta
+                    # find trimmed rudder deflection of certain beta
+                    dr = trim(aos[m], aoa_levels[i], re_levels[j], j_levels[k])
                     dr_trim[m] = dr
-                ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]), markerfacecolor='none')    # plot the
+                    # find CD
+                    cd = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                         [aoa_levels[i], re_levels[j], j_levels[k], aos[m], [0], [0]],
+                                         ['CD'], file_name='Data_txt/Analysis_data.txt')
+                    print(cd)
+
+                # plot
+                ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]), markerfacecolor='none')
+                ax.plot(aos, cd, marker=markers[k], label='J =' + str(j_levels[k]), markerfacecolor='none')
 
             ax.set_xlim([-0.5, 10.5])
             ax.set_ylim([-6, -35])
@@ -201,6 +214,15 @@ def Trimming():
             ax.legend()
             fig.tight_layout()
             fig.savefig('Figures/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+
+            ax1.set_xlim([-0.5, 10.5])
+            ax1.set_ylim([0.05, 0.09])
+            ax1.set_xlabel('Angle of Sideslip [deg]')
+            ax1.set_ylabel('$C_{D}$ [-]')
+            ax1.grid()
+            ax1.legend()
+            fig.tight_layout()
+            fig.savefig('Figures/CD' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
 
             plt.show()
 
