@@ -103,7 +103,7 @@ def Direction_stability():
             fig.savefig('Figures/Directional_stability/cy_beta' + str(re) + '_aoa_' + str(aoa) + '.pdf')
 
             ax1.set_xlim([-0.5, 10.5])
-            ax1.set_ylim([-0, -0.06])
+            ax1.set_ylim([-0.06, 0])
             ax1.set_xlabel('Angle of Sideslip [deg]')
             ax1.set_ylabel('$C_{n}$ [-]')
             ax1.grid()
