@@ -188,10 +188,14 @@ def Trimming():
             for k in range(len(j_levels)):                  # Loop the j for 4 different setup according to the Reynolds
 
                 dr_trim = np.zeros(len(aos))                # Store the dr in each sideslip angle run
+                cd      = np.zeros(len(aos))
                 for m in range(len(aos)):                   # Loop the AoS
                     dr = trim(aos[m], aoa_levels[i], re_levels[j], j_levels[k])     # find trimmed rudder deflection of certain beta
                     dr_trim[m] = dr
-                ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]), markerfacecolor='none')    # plot the
+                    cd = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                         [aoa_levels[i], re_levels[j], j_levels[k], aos[m]], ['CD'], file_name='Data_txt/Analysis_data.txt')
+
+                ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]), markerfacecolor='none')
 
             ax.set_xlim([-0.5, 10.5])
             ax.set_ylim([-6, -35])
