@@ -4,46 +4,8 @@ from trim_conditions import trim
 import matplotlib.pyplot as plt
 from select_data import select_data_txt
 
+
 # plt.rcParams.update({'font.size': 16})
-
-
-def directional_derivatives(filename, Re, J, AoA):
-    dat = select_data_txt(['Re', 'J_M1', 'AoA', 'de', 'dr'], [Re, J, AoA, 0, 0], ['AoS', 'CY', 'CMyaw'],
-                          file_name=filename)
-
-    dat = dat[dat[:, 0].argsort()]
-    aos = dat[:, 0]
-    cy = dat[:, 1]
-    cn = dat[:, 2]
-
-    print(aos)
-    p_beta = np.polyfit(aos, cn, deg=1)
-    cn_b = p_beta[0]
-
-    p_y_beta = np.polyfit(aos, cy, deg=1)
-    cy_b = p_y_beta[0]
-
-    # cn_b = np.zeros(len(aos))
-    # cy_b = np.zeros(len(aos))
-
-    # for k, AoS in enumerate(aos):
-    #     dat = select_data_txt(['Re', 'J_M1', 'AoA', 'de', 'dr'], [Re, J, AoA, 0, 0],
-    #                           ['CY', 'CMyaw', 'AoS', 'run'],
-    #                           file_name=filename)
-    #
-    #     cy = dat[:, 0]
-    #     cn = dat[:, 1]
-    #     sideslip = dat[:, 2]
-    #     print(sideslip, cy, cn)
-    #
-    #     # Find cn dr and cy dr
-    #     p_beta = np.polyfit(sideslip, cn, deg=1)
-    #     cn_b[k] = p_beta[0]
-    #
-    #     p_y_beta = np.polyfit(sideslip, cy, deg=1)
-    #     cy_b[k] = p_y_beta[0]
-
-    return cn_b, cy_b, aos
 
 
 def Direction_stability():
@@ -51,12 +13,56 @@ def Direction_stability():
     data_columns = open('Data_txt/Analysis_data.txt', 'r').readlines()[0].split()[1:]
     data_f = pd.DataFrame(data, columns=data_columns)
 
+    def crr_vs_uncrr(filename, Re, J, AoA):
+        fig, ax = plt.subplots()
+        fig1, ax1 = plt.subplots()
+
+        dat = select_data_txt(['Re', 'J_M1', 'AoA', 'de', 'dr'], [Re, J, AoA, 0, 0], ['AoS', 'CY', 'CMyaw'],
+                              file_name=filename)
+
+        # Sort the data to avoid artifacts in the plots
+        dat = dat[dat[:, 0].argsort()]
+        aos = dat[:, 0]
+
+        # Array to store stability derivatives
+        cy = dat[:, 1]
+        cn = dat[:, 2]
+
+        return cy, cn, aos
+
+    cy_b_unc, cn_b_unc, aos_unc = crr_vs_uncrr('Data_txt/test_data_thrust_model_off_corr.txt', 340000, 1.75, 0)
+    cy_b_cor, cn_b_cor, aos_cor = crr_vs_uncrr('Data_txt/Analysis_data.txt', 340000, 1.75, 0.2)
+
     fig, ax = plt.subplots()
     fig1, ax1 = plt.subplots()
 
-    # cn_b_unc, cy_b_unc, aos_unc = directional_derivatives('Data_txt/test_data_thrust_model_off_corr.txt', 339000, 1.75,
-    #                                                       0)
-    # cn_b_cor, cy_b_cor, aos_cor = directional_derivatives('Data_txt/Analysis_data.txt', 339000, 1.75, 0.2)
+    ax.plot(aos_unc, cy_b_unc, marker='d', label='Uncorrected', markerfacecolor='none')
+    ax.plot(aos_cor, cy_b_cor, marker='s', label='Corrected', markerfacecolor='none')
+    ax.set_xlim([-0.5, 10.5])
+    ax.set_ylim([0, 0.25])
+    ax.set_xlabel('Angle of Sideslip [deg]')
+    ax.set_ylabel('$C_{Y}$ [-]')
+    ax.grid()
+    ax.legend()
+    ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+    fig.tight_layout()
+    fig.savefig('Figures/Directional_stability/cy_b_comp.pdf')
+
+    ax1.plot(aos_unc, cn_b_unc, marker='d', label='Uncorrected', markerfacecolor='none')
+    ax1.plot(aos_cor, cn_b_cor, marker='s', label='Corrected', markerfacecolor='none')
+    ax1.set_xlim([-0.5, 10.5])
+    ax1.set_ylim([-0.06, 0])
+    ax1.set_xlabel('Angle of Sideslip [deg]')
+    ax1.set_ylabel('$C_{n}$ [-]')
+    ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+    ax1.grid()
+    ax1.legend()
+
+    fig1.tight_layout()
+    fig1.savefig('Figures/Directional_stability/cn_b_comp.pdf')
+
+    fig.show()
+    fig1.show()
 
     aoa_levels = np.unique(np.round(data[:, 2], 1))
     re_levels = np.unique(np.round(data[:, 6] / 1e5, 1)) * 1e5
@@ -112,8 +118,8 @@ def Direction_stability():
             fig1.tight_layout()
             fig.savefig('Figures/Directional_stability/cn_beta' + str(re) + '_aoa_' + str(aoa) + '.pdf')
 
-            fig.show()
-            fig1.show()
+            # fig.show()
+            # fig1.show()
 
 
 def control_derivatives(filename, Re, J, AoA):
@@ -266,12 +272,11 @@ def Rudder_effectiveness():
             ax1.set_ylabel('$C_{n_dr}$ [-]')
             ax1.grid()
             ax1.legend()
-            ax1.ticklabel_format(axis="y",style="sci", scilimits=(0,0))
+            ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
             # ax1.yaxis.set_major_formatter(formatter)
             fig1.tight_layout()
             fig1.savefig('Figures/Rudder_effectiveness/cn_dr_re' + str(re) + '_aoa_' + str(aoa) + '.pdf')
             fig.show()
-
 
 
 def Trimming():
