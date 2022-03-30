@@ -181,6 +181,7 @@ def Trimming():
             markers = ['x', 'o', 'D', '|']
 
             fig, ax = plt.subplots()
+            fig, ax1 = plt.subplots()
 
             j_m1 = select_data_txt(['Re'], [re_levels[j]], ['J_M1'], file_name='Data_txt/Analysis_data.txt')    # select j based on Re
             j_levels = np.unique(np.round(j_m1, 1))
@@ -194,8 +195,10 @@ def Trimming():
                     dr_trim[m] = dr
                     cd = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
                                          [aoa_levels[i], re_levels[j], j_levels[k], aos[m]], ['CD'], file_name='Data_txt/Analysis_data.txt')
+                    cd[m] = cd
 
                 ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]), markerfacecolor='none')
+                ax1.plot(aos, cd, marker=markers[k], label='J =' + str(j_levels[k]), markerfacecolor='none')
 
             ax.set_xlim([-0.5, 10.5])
             ax.set_ylim([-6, -35])
@@ -205,6 +208,15 @@ def Trimming():
             ax.legend()
             fig.tight_layout()
             fig.savefig('Figures/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+
+            ax1.set_xlim([-0.5, 10.5])
+            ax1.set_ylim([0.04, 0.09])
+            ax1.set_xlabel('Angle of Sideslip [deg]')
+            ax1.set_ylabel('$CD$ [-]')
+            ax1.grid()
+            ax1.legend()
+            fig.tight_layout()
+            fig.savefig('Figures/cd' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
 
             plt.show()
 
