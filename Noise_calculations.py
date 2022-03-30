@@ -18,7 +18,7 @@ p_rms = p_ref * 10 ** (SPL_corr/20)
 
 # Calculate thrust -----------------------------------
 # Read original data from text file
-data = np.genfromtxt('test_data.txt')
+data = np.genfromtxt('Data_txt/test_data.txt')
 
 # Retrieve lift and drag coefficients and other necessary data (uncorrected for thrust)
 AoA = np.deg2rad(data[:, 2])
