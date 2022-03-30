@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
-from select_data import select_data_txt
 from trim_conditions import trim
 import matplotlib.pyplot as plt
 from select_data import select_data_txt
 
-plt.rcParams.update({'font.size': 16})
+# plt.rcParams.update({'font.size': 16})
 
 
 def directional_derivatives(filename, Re, J, AoA):
@@ -46,11 +45,11 @@ def directional_derivatives(filename, Re, J, AoA):
 
     return cn_b, cy_b, aos
 
+
 def Direction_stability():
     data = np.genfromtxt('Data_txt/Analysis_data.txt', skip_header=1)
     data_columns = open('Data_txt/Analysis_data.txt', 'r').readlines()[0].split()[1:]
     data_f = pd.DataFrame(data, columns=data_columns)
-
 
     fig, ax = plt.subplots()
     fig1, ax1 = plt.subplots()
@@ -77,9 +76,7 @@ def Direction_stability():
             # Find the different J-levels
             temp = select_data_txt(['Re'], [re], ['J_M1'], file_name='Data_txt/Analysis_data.txt')
             j_levels = np.unique(np.round(temp, 1))
-            print(j_levels)
             for i, j in enumerate(j_levels):
-
                 dat = select_data_txt(['Re', 'J_M1', 'AoA', 'de', 'dr'], [re, j, aoa, 0, 0], ['AoS', 'CY', 'CMyaw'],
                                       file_name='Data_txt/Analysis_data.txt')
 
@@ -91,7 +88,6 @@ def Direction_stability():
                 cy = dat[:, 1]
                 cn = dat[:, 2]
 
-
                 ax.plot(aos, cy, marker=markers[i], label='J =' + str(j), markerfacecolor='none')
                 ax1.plot(aos, cn, marker=markers[i], label='J =' + str(j), markerfacecolor='none')
 
@@ -101,6 +97,8 @@ def Direction_stability():
             ax.set_ylabel('$C_{Y}$ [-]')
             ax.grid()
             ax.legend()
+            ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+
             fig.tight_layout()
             fig.savefig('Figures/Directional_stability/cy_beta' + str(re) + '_aoa_' + str(aoa) + '.pdf')
 
@@ -110,11 +108,13 @@ def Direction_stability():
             ax1.set_ylabel('$C_{n}$ [-]')
             ax1.grid()
             ax1.legend()
+            ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
             fig1.tight_layout()
             fig.savefig('Figures/Directional_stability/cn_beta' + str(re) + '_aoa_' + str(aoa) + '.pdf')
 
             fig.show()
             fig1.show()
+
 
 def control_derivatives(filename, Re, J, AoA):
     dat = select_data_txt(['Re', 'J_M1', 'AoA', 'de'], [Re, J, AoA, 0], ['AoS', 'CY', 'CMyaw', 'dr'],
@@ -168,10 +168,12 @@ def Rudder_effectiveness():
     ax.set_ylim([0.0034, 0.0045])
     ax.set_xlabel('Angle of Sideslip [deg]')
     ax.set_ylabel('$C_{Y_dr}$ [-]')
+
     ax.grid()
     ax.legend()
+    ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     fig.tight_layout()
-    fig.savefig('Figures/cy_dr_comp.pdf')
+    fig.savefig('Figures/Rudder_effectiveness/cy_dr_comp.pdf')
 
     ax1.plot(aos_unc, cn_dr_unc, marker='d', label='Uncorrected', markerfacecolor='none')
     ax1.plot(aos_cor, cn_dr_cor, marker='s', label='Corrected', markerfacecolor='none')
@@ -179,12 +181,15 @@ def Rudder_effectiveness():
     ax1.set_ylim([-0.002, -0.0014])
     ax1.set_xlabel('Angle of Sideslip [deg]')
     ax1.set_ylabel('$C_{n_dr}$ [-]')
+    ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax1.grid()
     ax1.legend()
-    fig1.tight_layout()
-    fig.savefig('Figures/cn_dr_comp.pdf')
 
-    plt.show()
+    fig1.tight_layout()
+    fig1.savefig('Figures/Rudder_effectiveness/cn_dr_comp.pdf')
+
+    fig.show()
+    fig1.show()
 
     # Get the levels for each of the parameters of interest
     aoa_levels = np.unique(np.round(data[:, 2], 1))
@@ -249,6 +254,9 @@ def Rudder_effectiveness():
             ax.set_ylabel('$C_{Y_dr}$ [-]')
             ax.grid()
             ax.legend()
+            ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+            # ax.yaxis.set_major_formatter(formatter)
+
             fig.tight_layout()
             fig.savefig('Figures/Rudder_effectiveness/cy_dr_re' + str(re) + '_aoa_' + str(aoa) + '.pdf')
 
@@ -258,10 +266,12 @@ def Rudder_effectiveness():
             ax1.set_ylabel('$C_{n_dr}$ [-]')
             ax1.grid()
             ax1.legend()
+            ax1.ticklabel_format(axis="y",style="sci", scilimits=(0,0))
+            # ax1.yaxis.set_major_formatter(formatter)
             fig1.tight_layout()
-            fig.savefig('Figures/Rudder_effectiveness/cn_dr_re' + str(re) + '_aoa_' + str(aoa) + '.pdf')
+            fig1.savefig('Figures/Rudder_effectiveness/cn_dr_re' + str(re) + '_aoa_' + str(aoa) + '.pdf')
+            fig.show()
 
-            plt.show()
 
 
 def Trimming():
@@ -306,4 +316,5 @@ def Trimming():
 
 
 if __name__ == '__main__':
+    # Rudder_effectiveness()
     Direction_stability()
