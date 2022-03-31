@@ -1,20 +1,66 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Constants
 p_ref = 20 * 10**(-6)  # Pa
 D = 0.2032             # m
 
-# Read noise data TODO
+# Read noise data
+mic1_data = np.genfromtxt('Data_txt/mic_1.txt')
+mic2_data = np.genfromtxt('Data_txt/mic_2.txt')
+mic3_data = np.genfromtxt('Data_txt/mic_3.txt')
+# mic4_data = np.genfromtxt('Data_txt/mic_4.txt')
+# mic5_data = np.genfromtxt('Data_txt/mic_5.txt')
+mic6_data = np.genfromtxt('Data_txt/mic_6.txt')
 
 
-# Calculate SPL from data TODO
-SPL = 1
+# Calculate SPL from data -----------------
+# Save to arrays
+f = mic1_data[0, :]
+SPL_mic1 = []
+SPL_mic2 = []
+SPL_mic3 = []
+# SPL_mic4 = []
+# SPL_mic5 = []
+SPL_mic6 = []
 
-# Correct measured SPL
-SPL_corr = 1
+# File format is each test point stored as a row, first row of the file has f, and the rest have the SPL per test point
+# Loop through all rows only with odd indices (SPL)
+for i in range(1, len(mic1_data)):
+
+    SPL_mic1.append(mic1_data[i, :])
+    SPL_mic2.append(mic2_data[i, :])
+    SPL_mic3.append(mic3_data[i, :])
+    # SPL_mic4.append(mic4_data[i, :])
+    # SPL_mic5.append(mic5_data[i, :])
+    SPL_mic6.append(mic6_data[i, :])
+
+
+# Convert to numpy arrays
+SPL_mic1 = np.array(SPL_mic1)
+SPL_mic2 = np.array(SPL_mic2)
+SPL_mic3 = np.array(SPL_mic3)
+# SPL_mic4 = np.array(SPL_mic4)
+# SPL_mic5 = np.array(SPL_mic5)
+SPL_mic6 = np.array(SPL_mic6)
+
+# Correct measured SPL TODO
+SPL_corr_mic1 = SPL_mic1
+SPL_corr_mic2 = SPL_mic2
+SPL_corr_mic3 = SPL_mic3
+# SPL_corr_mic4 = SPL_mic4
+# SPL_corr_mic5 = SPL_mic5
+SPL_corr_mic6 = SPL_mic6
+
 
 # Calculate p_rms from corrected SPL
-p_rms = p_ref * 10 ** (SPL_corr/20)
+p_rms_mic1 = p_ref * 10 ** (SPL_corr_mic1/20)
+p_rms_mic2 = p_ref * 10 ** (SPL_corr_mic2/20)
+p_rms_mic3 = p_ref * 10 ** (SPL_corr_mic3/20)
+# p_rms_mic4 = p_ref * 10 ** (SPL_corr_mic4/20)
+# p_rms_mic5 = p_ref * 10 ** (SPL_corr_mic5/20)
+p_rms_mic6 = p_ref * 10 ** (SPL_corr_mic6/20)
+
 
 # Calculate thrust -----------------------------------
 # Read original data from text file
@@ -89,6 +135,101 @@ for i in range(len(V)):
 # CT = T/rho/n^2/D^4
 T = CTs * rho * n**2 * D**4  # N
 
-# Non-dimensional pressure (Pi theorem) ---------------
-Pi_p_rms = p_rms * D**2 / T
+# Reformat T array in order to be able to scale p_rms
+T = np.expand_dims(T, axis=0)
+T = np.repeat(T.T, repeats=np.shape(p_rms_mic1)[1], axis=1)
 
+# Non-dimensional pressure (Pi theorem) ---------------
+Pi_p_rms_mic1 = p_rms_mic1 * D**2 / T
+Pi_p_rms_mic2 = p_rms_mic2 * D**2 / T
+Pi_p_rms_mic3 = p_rms_mic3 * D**2 / T
+# Pi_p_rms_mic4 = p_rms_mic4 * D**2 / T
+# Pi_p_rms_mic5 = p_rms_mic5 * D**2 / T
+Pi_p_rms_mic6 = p_rms_mic6 * D**2 / T
+
+
+# Plotting --------------------------------------------
+index = 0
+
+# SPL
+plt.subplot(2, 2, 1)
+plt.plot(f, SPL_corr_mic1[0], label='SPL mic_1 condition 1', linewidth=0.5)
+plt.plot(f, SPL_corr_mic1[45], label='SPL mic_1 condition 2', linewidth=0.5)
+# plt.plot(f, Pi_p_rms_mic1[0])
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.subplot(2, 2, 2)
+plt.plot(f, SPL_corr_mic2[0], label='SPL mic_2')
+plt.plot(f, SPL_corr_mic2[45], label='SPL mic_2 condition 2')
+# plt.plot(f, Pi_p_rms_mic2[0])
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.subplot(2, 2, 3)
+plt.plot(f, SPL_corr_mic3[0], label='SPL mic_3')
+plt.plot(f, SPL_corr_mic3[45], label='SPL mic_3 condition 2')
+# plt.plot(f, Pi_p_rms_mic3[0])
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.subplot(2, 2, 4)
+plt.plot(f, SPL_corr_mic6[0], label='SPL mic_6')
+plt.plot(f, SPL_corr_mic6[45], label='SPL mic_6 condition 2')
+# plt.plot(f, Pi_p_rms_mic6[0])
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.show()
+
+
+# Pi ratio ----------------------
+plt.subplot(2, 2, 1)
+
+plt.plot(f, Pi_p_rms_mic1[0], label='Pi ratio mic_1')
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.subplot(2, 2, 2)
+
+plt.plot(f, Pi_p_rms_mic2[0], label='Pi ratio mic_1')
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.subplot(2, 2, 3)
+
+plt.plot(f, Pi_p_rms_mic3[0], label='Pi ratio mic_1')
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.subplot(2, 2, 4)
+
+plt.plot(f, Pi_p_rms_mic6[0], label='Pi ratio mic_1')
+
+plt.xlabel('f')
+plt.ylabel('SPL')
+plt.grid()
+plt.legend()
+
+plt.show()

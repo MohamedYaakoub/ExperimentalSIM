@@ -19,18 +19,19 @@ class Microphone:
 # print(Microphone().find(data_sets[0], 'f')[0][0][:, 1])
 
 
-def process_data_mic(mic_number):
+def write_data_mic(mic_number):
 
     # Datasets and variables that need to be stored
-    data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart']
+    data_sets = ['rudder0deg', 'rudderminus10deg', 'rudder0deg_remeasure', 'rudder0deg_restart', 'rudder0deg_elevator5deg']
     # rudder    = [0, -10, 0, 0]
     variables = ['SPL', 'f']
 
     # Load microphone data
     Mic_Data = Microphone()
 
-    # Array to store all the data in
-    data = np.zeros((1, len(Mic_Data.find('rudder0deg', 'SPL')[0][0][:, 0])))
+    # Array to store all the data in, initialise it with frequency
+    # data = np.zeros((1, len(Mic_Data.find('rudder0deg', 'SPL')[0][0][:, 0])))
+    data = Mic_Data.find('rudder0deg', 'f')[0][0][:, 0]
 
     for i in range(len(data_sets)):
 
@@ -45,15 +46,15 @@ def process_data_mic(mic_number):
         for j in range(len(Mic_Data.find(data_sets[i], 'SPL')[0])):
             # Make an empty array to store the data for this dataset
             # set_array = np.zeros((len(Mic_Data.find(data_sets[i], variables[0])[:, 0]), len(variables)-2))
-            set_array = np.zeros((2, len(Mic_Data.find(data_sets[i], 'SPL')[0][j][:, mic_number])))
+            set_array = np.zeros((1, len(Mic_Data.find(data_sets[i], 'SPL')[0][j][:, mic_number])))
 
-            # First row is f
-            # set_array[0, 1] = 'f'
-            set_array[0, :] = Mic_Data.find(data_sets[i], 'f')[0][j][:, 0]
+            # # First row is f
+            # # set_array[0, 1] = 'f'
+            # set_array[0, :] = Mic_Data.find(data_sets[i], 'f')[0][j][:, 0]
 
             # Second row is SPL
             # set_array[0, 0] = 'SPL'
-            set_array[1, :] = Mic_Data.find(data_sets[i], 'SPL')[0][j][:, mic_number]
+            set_array[0, :] = Mic_Data.find(data_sets[i], 'SPL')[0][j][:, mic_number]
 
             # for j in range(len(variables)):
             #     if j == 1:
@@ -77,9 +78,9 @@ def process_data_mic(mic_number):
 
     header = variables[:-2] + SPL_hdr + f_hdr
 
-    np.savetxt('Data_txt\mic_' + str(mic_number + 1) + '.txt', data[1:, :], fmt='%10.5f')  # [1:, :], header='         '.join(header), fmt='%10.5f')
+    np.savetxt('Data_txt\mic_' + str(mic_number + 1) + '.txt', data, fmt='%10.5f')  # [1:, :], header='         '.join(header), fmt='%10.5f')
 
 
 # Save files for the 6 microphones
 for i in range(6):
-    process_data_mic(i)
+    write_data_mic(i)
