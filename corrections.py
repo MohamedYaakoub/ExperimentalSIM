@@ -265,7 +265,7 @@ class Corrections:
         alpha_sc = 0.5 * self.wing_mac * alpha_up * tau_2
 
         CD_W = np.zeros(N_pts)
-        for i in range(1):
+        for i in range(N_pts):
             CL_w = self.CL_W(self.data[i, :])
             CD_W[i] = delta * self.S / self.C * CL_w ** 2
 
@@ -340,7 +340,7 @@ if __name__ == '__main__':
     data_f['AoA'] = data_f['AoA'] + np.rad2deg(alpha_l)
     # print(np.rad2deg(alpha_l))
     data_f['CD'] = data_f['CD'] + CD_W_l
-
+    print(CD_W_l, alpha_l, CM_l)
     # down wash
     data_f['CMpitch'] = data_f['CMpitch'] + CM_l + CM_d
     data_f_values = data_f.values
