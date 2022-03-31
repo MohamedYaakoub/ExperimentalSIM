@@ -292,8 +292,8 @@ def Trimming():
 
             markers = ['x', 'o', 'D', '|']
 
-            # fig, ax = plt.subplots()
-            # fig, ax1 = plt.subplots()
+            fig, ax = plt.subplots()
+            fig1, ax1 = plt.subplots()
 
             j_m1 = select_data_txt(['Re'], [re_levels[j]], ['J_M1'],
                                    file_name='Data_txt/Analysis_data.txt')  # select j based on Re
@@ -302,82 +302,95 @@ def Trimming():
             for k in range(len(j_levels)):  # Loop the j for 4 different setup according to the Reynolds
 
                 dr_trim   = np.zeros(len(aos))  # Store the dr in each sideslip angle run
-                cd_trim   = np.zeros(len(aos))  # Store the cd in each sideslip angle run
+                cdcl_trim = np.zeros(len(aos))  # Store the cd in each sideslip angle run
                 for m in range(len(aos)):  # Loop the AoS
 
                     # find trimmed rudder deflection of certain beta
                     dr = trim(aos[m], aoa_levels[i], re_levels[j],
-                              j_levels[k])
+                              j_levels[k], filename = 'Data_txt/Analysis_data.txt')
                     dr_trim[m] = dr
 
                     # find the cd of certain beta
-                    cd = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
-                                         [aoa_levels[i], re_levels[j], j_levels[k], aos[m], 0, 0], ['CD'],
+                    result = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                         [aoa_levels[i], re_levels[j], j_levels[k], aos[m], 0, 0], ['CD', 'CL'],
                                          file_name='Data_txt/Analysis_data.txt')
-                    CD = np.sum(cd)/len(cd)  # take the average of all data point
-                    cd_trim[m] = CD
+                    cdcl_trim[m] = np.mean(result[:, 1]/result[:, 0])
 
-                # ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]),
-                #         markerfacecolor='none')
-                # ax1.plot(aos, cd_trim, marker=markers[k], label='J =' + str(j_levels[k]),
-                #         markerfacecolor='none')
+                ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]),
+                        markerfacecolor='none')
+                ax1.plot(aos, cdcl_trim, marker=markers[k], label='J =' + str(j_levels[k]),
+                        markerfacecolor='none')
+
+            ax.set_xlim([-0.5, 10.5])
+            ax.set_ylim([-6, -35])
+            ax.set_xlabel('Angle of Sideslip [deg]')
+            ax.set_ylabel('$\delta r$ [-]')
+            ax.grid()
+            ax.legend()
+            fig.tight_layout()
+            fig.savefig('Figures/Trimming/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+
+            ax1.set_xlim([-0.5, 10.5])
+            ax1.set_ylim([0, 20])
+            ax1.set_xlabel('Angle of Sideslip [deg]')
+            ax1.set_ylabel('$C_{L}/C_{D}$ [-]')
+            ax1.grid()
+            ax1.legend()
+            fig1.tight_layout()
+            fig1.savefig('Figures/Trimming/clcd' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+            fig.show()
+            fig1.show()
 
     # Corrected vs Uncorrected data
-    CD_uncorr = np.zeros(len(aos))
-    CD_corr = np.zeros(len(aos))
+    CDCL_uncorr = np.zeros(len(aos))
+    CDCL_corr = np.zeros(len(aos))
     dr_trim_uncorr = np.zeros(len(aos))
     dr_trim_corr = np.zeros(len(aos))
     for a in range(len(aos)):
 
-        cd_uncorr = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
-                                [5, 450000, 2, aos[a], 0, 0], ['CD'],
+        uncoor_data = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                [5, 450000, 2, aos[a], 0, 0], ['CD_uncorr', 'CL_uncorr'],
                                 file_name='Data_txt/test_data_thrust_model_off_corr.txt')
 
-        cd_corr   = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
-                                [5.5, 450000, 2, aos[a], 0, 0], ['CD'],
+        coor_data = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                [5.5, 450000, 2, aos[a], 0, 0], ['CD', 'CL'],
                                 file_name='Data_txt/Analysis_data.txt')
 
-        # dr_uncorr = trim(aos[a], 5, 450000, 2)
-        # dr_corr = trim(aos[a], 5.5, 450000, 2)
-        #
-        # dr_trim_uncorr[a] = dr_uncorr
+        dr_uncorr = trim(aos[a], 5, 450000, 2, filename='Data_txt/test_data_thrust_model_off_corr.txt')
+        dr_corr = trim(aos[a], 5.5, 450000, 2, filename='Data_txt/Analysis_data.txt')
 
-        CD_uncorr[a] = np.sum(cd_uncorr) / len(cd_uncorr)
-        CD_corr[a] = np.sum(cd_corr) / len(cd_corr)
-    fig, ax2 = plt.subplots()
-    ax2.plot(aos, CD_uncorr, marker='d', label='Uncorrected',
-            markerfacecolor='none')
-    ax2.plot(aos, CD_corr, marker='s', label='Corrected',
-             markerfacecolor='none')
+        CDCL_uncorr[a] = np.mean(uncoor_data[:, 1]/uncoor_data[:, 0])
+        CDCL_corr[a] = np.mean(coor_data[:, 1]/coor_data[:, 0])
+        dr_trim_uncorr[a] = dr_uncorr
+        dr_trim_corr[a] = dr_corr
 
-            # ax.set_xlim([-0.5, 10.5])
-            # ax.set_ylim([-6, -35])
-            # ax.set_xlabel('Angle of Sideslip [deg]')
-            # ax.set_ylabel('$\delta r$ [-]')
-            # ax.grid()
-            # ax.legend()
-            # fig.tight_layout()
-            # fig.savefig('Figures/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
-            #
-            # ax1.set_xlim([-0.5, 10.5])
-            # ax1.set_ylim([0.04, 0.09])
-            # ax1.set_xlabel('Angle of Sideslip [deg]')
-            # ax1.set_ylabel('$C_{D}$ [-]')
-            # ax1.grid()
-            # ax1.legend()
-            # fig.tight_layout()
-            # fig.savefig('Figures/cd' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+    fig2, ax2 = plt.subplots()
+    fig3, ax3 = plt.subplots()
+    ax2.plot(aos, CDCL_uncorr, marker='d', label='Uncorrected', markerfacecolor='none')
+    ax2.plot(aos, CDCL_corr, marker='s', label='Corrected', markerfacecolor='none')
+    ax3.plot(aos, dr_trim_uncorr, marker='d', label='Uncorrected', markerfacecolor='none')
+    ax3.plot(aos, dr_trim_corr, marker='s', label='Corrected', markerfacecolor='none')
 
     ax2.set_xlim([-0.5, 10.5])
-    ax2.set_ylim([0.04, 0.09])
+    ax2.set_ylim([0, 20])
     ax2.set_xlabel('Angle of Sideslip [deg]')
-    ax2.set_ylabel('$C_{D}$ [-]')
+    ax2.set_ylabel('$C_{L}/C_{D}$ [-]')
     ax2.grid()
     ax2.legend()
-    fig.tight_layout()
-    fig.savefig('Figures/cd' + str(450000) + '_aoa_' + str(5) + '.pdf')
+    fig2.tight_layout()
+    fig2.savefig('Figures/Trimming/clcd_aos_comp.pdf')
 
-    plt.show()
+    ax3.set_xlim([-0.5, 10.5])
+    ax3.set_ylim([-6, -35])
+    ax3.set_xlabel('Angle of Sideslip [deg]')
+    ax3.set_ylabel('$\delta r$ [-]')
+    ax3.grid()
+    ax3.legend()
+    fig3.tight_layout()
+    fig3.savefig('Figures/Trimming/dr_aos_comp.pdf')
+
+    fig2.show()
+    fig3.show()
 
 
 if __name__ == '__main__':
