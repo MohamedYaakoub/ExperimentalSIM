@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from select_data import select_data_txt
 
 
-# plt.rcParams.update({'font.size': 16})
 
 
 def Direction_stability():
@@ -159,6 +158,7 @@ def control_derivatives(filename, Re, J, AoA):
 
 
 def Rudder_effectiveness():
+
     # Import the data
     data = np.genfromtxt('Data_txt/Analysis_data.txt', skip_header=1)
 
@@ -168,10 +168,10 @@ def Rudder_effectiveness():
     cn_dr_unc, cy_dr_unc, aos_unc = control_derivatives('Data_txt/test_data_thrust_model_off_corr.txt', 339000, 1.75, 0)
     cn_dr_cor, cy_dr_cor, aos_cor = control_derivatives('Data_txt/Analysis_data.txt', 339000, 1.75, 0.2)
 
-    ax.plot(aos_unc, cy_dr_unc, marker='d', label='Uncorrected', markerfacecolor='none')
-    ax.plot(aos_cor, cy_dr_cor, marker='s', label='Corrected', markerfacecolor='none')
+    ax.plot(aos_unc, cy_dr_unc, marker= 'd', label='Uncorrected', markerfacecolor='none')
+    ax.plot(aos_cor, cy_dr_cor, marker= 's', label='Corrected', markerfacecolor='none')
     ax.set_xlim([-0.5, 10.5])
-    ax.set_ylim([0.0034, 0.0045])
+    ax.set_ylim([0.0024, 0.0035])
     ax.set_xlabel('Angle of Sideslip [deg]')
     ax.set_ylabel('$C_{Y_dr}$ [-]')
 
@@ -181,10 +181,10 @@ def Rudder_effectiveness():
     fig.tight_layout()
     fig.savefig('Figures/Rudder_effectiveness/cy_dr_comp.pdf')
 
-    ax1.plot(aos_unc, cn_dr_unc, marker='d', label='Uncorrected', markerfacecolor='none')
-    ax1.plot(aos_cor, cn_dr_cor, marker='s', label='Corrected', markerfacecolor='none')
+    ax1.plot(aos_unc, cn_dr_unc, marker= 'd', label='Uncorrected', markerfacecolor='none')
+    ax1.plot(aos_cor, cn_dr_cor, marker= 's', label='Corrected', markerfacecolor='none')
     ax1.set_xlim([-0.5, 10.5])
-    ax1.set_ylim([-0.002, -0.0014])
+    ax1.set_ylim([-0.0016, -0.0012])
     ax1.set_xlabel('Angle of Sideslip [deg]')
     ax1.set_ylabel('$C_{n_dr}$ [-]')
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -198,8 +198,8 @@ def Rudder_effectiveness():
     fig1.show()
 
     # Get the levels for each of the parameters of interest
-    aoa_levels = np.unique(np.round(data[:, 2], 1))
-    re_levels = np.unique(np.round(data[:, 6] / 1e5, 1)) * 1e5
+    aoa_levels  = np.unique(np.round(data[:, 2], 1))
+    re_levels   = np.unique(np.round(data[:, 6]/1e5, 1))*1e5
 
     # Plotting conventions
     markers = ['x', 'o', 'D', '|']
@@ -245,14 +245,14 @@ def Rudder_effectiveness():
                     dr = dat[:, 2]
 
                     # Find cn dr and cy dr
-                    p_dr = np.polyfit(dr, cn, deg=1)
+                    p_dr  = np.polyfit(dr, cn, deg = 1)
                     cn_dr[k] = p_dr[0]
 
-                    p_y = np.polyfit(dr, cy, deg=1)
+                    p_y   = np.polyfit(dr, cy, deg = 1)
                     cy_dr[k] = p_y[0]
 
-                ax.plot(aos, cy_dr, marker=markers[i], label='J =' + str(j), markerfacecolor='none')
-                ax1.plot(aos, cn_dr, marker=markers[i], label='J =' + str(j), markerfacecolor='none')
+                ax.plot(aos, cy_dr, marker = markers[i], label = 'J =' + str(j), markerfacecolor='none')
+                ax1.plot(aos, cn_dr, marker = markers[i], label = 'J =' + str(j), markerfacecolor='none')
 
             ax.set_xlim([-0.5, 10.5])
             ax.set_ylim([0.0026, 0.004])
