@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from select_data import select_data_txt
 
 
-# plt.rcParams.update({'font.size': 16})
 
 
 def Direction_stability():
@@ -159,6 +158,7 @@ def control_derivatives(filename, Re, J, AoA):
 
 
 def Rudder_effectiveness():
+
     # Import the data
     data = np.genfromtxt('Data_txt/Analysis_data.txt', skip_header=1)
 
@@ -168,10 +168,10 @@ def Rudder_effectiveness():
     cn_dr_unc, cy_dr_unc, aos_unc = control_derivatives('Data_txt/test_data_thrust_model_off_corr.txt', 339000, 1.75, 0)
     cn_dr_cor, cy_dr_cor, aos_cor = control_derivatives('Data_txt/Analysis_data.txt', 339000, 1.75, 0.2)
 
-    ax.plot(aos_unc, cy_dr_unc, marker='d', label='Uncorrected', markerfacecolor='none')
-    ax.plot(aos_cor, cy_dr_cor, marker='s', label='Corrected', markerfacecolor='none')
+    ax.plot(aos_unc, cy_dr_unc, marker= 'd', label='Uncorrected', markerfacecolor='none')
+    ax.plot(aos_cor, cy_dr_cor, marker= 's', label='Corrected', markerfacecolor='none')
     ax.set_xlim([-0.5, 10.5])
-    ax.set_ylim([0.0034, 0.0045])
+    ax.set_ylim([0.0024, 0.0035])
     ax.set_xlabel('Angle of Sideslip [deg]')
     ax.set_ylabel('$C_{Y_dr}$ [-]')
 
@@ -181,10 +181,10 @@ def Rudder_effectiveness():
     fig.tight_layout()
     fig.savefig('Figures/Rudder_effectiveness/cy_dr_comp.pdf')
 
-    ax1.plot(aos_unc, cn_dr_unc, marker='d', label='Uncorrected', markerfacecolor='none')
-    ax1.plot(aos_cor, cn_dr_cor, marker='s', label='Corrected', markerfacecolor='none')
+    ax1.plot(aos_unc, cn_dr_unc, marker= 'd', label='Uncorrected', markerfacecolor='none')
+    ax1.plot(aos_cor, cn_dr_cor, marker= 's', label='Corrected', markerfacecolor='none')
     ax1.set_xlim([-0.5, 10.5])
-    ax1.set_ylim([-0.002, -0.0014])
+    ax1.set_ylim([-0.0016, -0.0012])
     ax1.set_xlabel('Angle of Sideslip [deg]')
     ax1.set_ylabel('$C_{n_dr}$ [-]')
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -198,8 +198,8 @@ def Rudder_effectiveness():
     fig1.show()
 
     # Get the levels for each of the parameters of interest
-    aoa_levels = np.unique(np.round(data[:, 2], 1))
-    re_levels = np.unique(np.round(data[:, 6] / 1e5, 1)) * 1e5
+    aoa_levels  = np.unique(np.round(data[:, 2], 1))
+    re_levels   = np.unique(np.round(data[:, 6]/1e5, 1))*1e5
 
     # Plotting conventions
     markers = ['x', 'o', 'D', '|']
@@ -245,14 +245,14 @@ def Rudder_effectiveness():
                     dr = dat[:, 2]
 
                     # Find cn dr and cy dr
-                    p_dr = np.polyfit(dr, cn, deg=1)
+                    p_dr  = np.polyfit(dr, cn, deg = 1)
                     cn_dr[k] = p_dr[0]
 
-                    p_y = np.polyfit(dr, cy, deg=1)
+                    p_y   = np.polyfit(dr, cy, deg = 1)
                     cy_dr[k] = p_y[0]
 
-                ax.plot(aos, cy_dr, marker=markers[i], label='J =' + str(j), markerfacecolor='none')
-                ax1.plot(aos, cn_dr, marker=markers[i], label='J =' + str(j), markerfacecolor='none')
+                ax.plot(aos, cy_dr, marker = markers[i], label = 'J =' + str(j), markerfacecolor='none')
+                ax1.plot(aos, cn_dr, marker = markers[i], label = 'J =' + str(j), markerfacecolor='none')
 
             ax.set_xlim([-0.5, 10.5])
             ax.set_ylim([0.0026, 0.004])
@@ -282,7 +282,7 @@ def Rudder_effectiveness():
 def Trimming():
     data = np.genfromtxt('Data_txt/Analysis_data.txt', skip_header=1)
     re_levels = np.unique(np.round(data[:, 6] / 1e5, 1)) * 1e5  # Re  = [340000. 450000.]
-    aoa_levels = np.unique(np.round(data[:, 2], 1))  # AoA = [0. 5.]
+    aoa_levels = np.unique(np.round(data[:, 2], 1))  # AoA = [0.2 5.5]
     aos_levels = np.unique(np.round(data[:, 3], 1))  # AoS = [-5.  0.  5. 10.]
     aos = aos_levels[aos_levels >= 0]  # Check if >= 0 then keep it
 
@@ -293,6 +293,7 @@ def Trimming():
             markers = ['x', 'o', 'D', '|']
 
             fig, ax = plt.subplots()
+            fig1, ax1 = plt.subplots()
 
             j_m1 = select_data_txt(['Re'], [re_levels[j]], ['J_M1'],
                                    file_name='Data_txt/Analysis_data.txt')  # select j based on Re
@@ -300,13 +301,25 @@ def Trimming():
 
             for k in range(len(j_levels)):  # Loop the j for 4 different setup according to the Reynolds
 
-                dr_trim = np.zeros(len(aos))  # Store the dr in each sideslip angle run
+                dr_trim   = np.zeros(len(aos))  # Store the dr in each sideslip angle run
+                cdcl_trim = np.zeros(len(aos))  # Store the cd in each sideslip angle run
                 for m in range(len(aos)):  # Loop the AoS
+
+                    # find trimmed rudder deflection of certain beta
                     dr = trim(aos[m], aoa_levels[i], re_levels[j],
-                              j_levels[k])  # find trimmed rudder deflection of certain beta
+                              j_levels[k], filename = 'Data_txt/Analysis_data.txt')
                     dr_trim[m] = dr
+
+                    # find the cd of certain beta
+                    result = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                         [aoa_levels[i], re_levels[j], j_levels[k], aos[m], 0, 0], ['CD', 'CL'],
+                                         file_name='Data_txt/Analysis_data.txt')
+                    cdcl_trim[m] = np.mean(result[:, 1]/result[:, 0])
+
                 ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]),
-                        markerfacecolor='none')  # plot the
+                        markerfacecolor='none')
+                ax1.plot(aos, cdcl_trim, marker=markers[k], label='J =' + str(j_levels[k]),
+                        markerfacecolor='none')
 
             ax.set_xlim([-0.5, 10.5])
             ax.set_ylim([-6, -35])
@@ -315,11 +328,72 @@ def Trimming():
             ax.grid()
             ax.legend()
             fig.tight_layout()
-            fig.savefig('Figures/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+            fig.savefig('Figures/Trimming/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
 
-            plt.show()
+            ax1.set_xlim([-0.5, 10.5])
+            ax1.set_ylim([0, 20])
+            ax1.set_xlabel('Angle of Sideslip [deg]')
+            ax1.set_ylabel('$C_{L}/C_{D}$ [-]')
+            ax1.grid()
+            ax1.legend()
+            fig1.tight_layout()
+            fig1.savefig('Figures/Trimming/clcd' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+            fig.show()
+            fig1.show()
+
+    # Corrected vs Uncorrected data
+    CDCL_uncorr = np.zeros(len(aos))
+    CDCL_corr = np.zeros(len(aos))
+    dr_trim_uncorr = np.zeros(len(aos))
+    dr_trim_corr = np.zeros(len(aos))
+    for a in range(len(aos)):
+
+        uncoor_data = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                [5, 450000, 2, aos[a], 0, 0], ['CD_uncorr', 'CL_uncorr'],
+                                file_name='Data_txt/test_data_thrust_model_off_corr.txt')
+
+        coor_data = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
+                                [5.5, 450000, 2, aos[a], 0, 0], ['CD', 'CL'],
+                                file_name='Data_txt/Analysis_data.txt')
+
+        dr_uncorr = trim(aos[a], 5, 450000, 2, filename='Data_txt/test_data_thrust_model_off_corr.txt')
+        dr_corr = trim(aos[a], 5.5, 450000, 2, filename='Data_txt/Analysis_data.txt')
+
+        CDCL_uncorr[a] = np.mean(uncoor_data[:, 1]/uncoor_data[:, 0])
+        CDCL_corr[a] = np.mean(coor_data[:, 1]/coor_data[:, 0])
+        dr_trim_uncorr[a] = dr_uncorr
+        dr_trim_corr[a] = dr_corr
+
+    fig2, ax2 = plt.subplots()
+    fig3, ax3 = plt.subplots()
+    ax2.plot(aos, CDCL_uncorr, marker='d', label='Uncorrected', markerfacecolor='none')
+    ax2.plot(aos, CDCL_corr, marker='s', label='Corrected', markerfacecolor='none')
+    ax3.plot(aos, dr_trim_uncorr, marker='d', label='Uncorrected', markerfacecolor='none')
+    ax3.plot(aos, dr_trim_corr, marker='s', label='Corrected', markerfacecolor='none')
+
+    ax2.set_xlim([-0.5, 10.5])
+    ax2.set_ylim([0, 20])
+    ax2.set_xlabel('Angle of Sideslip [deg]')
+    ax2.set_ylabel('$C_{L}/C_{D}$ [-]')
+    ax2.grid()
+    ax2.legend()
+    fig2.tight_layout()
+    fig2.savefig('Figures/Trimming/clcd_aos_comp.pdf')
+
+    ax3.set_xlim([-0.5, 10.5])
+    ax3.set_ylim([-6, -35])
+    ax3.set_xlabel('Angle of Sideslip [deg]')
+    ax3.set_ylabel('$\delta r$ [-]')
+    ax3.grid()
+    ax3.legend()
+    fig3.tight_layout()
+    fig3.savefig('Figures/Trimming/dr_aos_comp.pdf')
+
+    fig2.show()
+    fig3.show()
 
 
 if __name__ == '__main__':
     # Rudder_effectiveness()
-    Direction_stability()
+    # Direction_stability()
+    Trimming()

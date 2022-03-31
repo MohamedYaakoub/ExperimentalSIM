@@ -219,6 +219,7 @@ class Corrections:
         data = select_data_txt(['AoA', 'AoS', 'Re'],
                                [data_point[2], data_point[3], data_point[6]], ['AoA', 'CL', 'CD', 'run'],
                                file_name='Data_txt/tail_off_data.txt')
+
         cl = np.mean(data[:, 1])
         # cd = data[:, 2]
         return cl
@@ -226,9 +227,10 @@ class Corrections:
     def CL_alpha(self, data_point):
 
         # For each datapoint, keep everything constant apart from AoA, CL and CD
-        data = select_data_txt(['AoS', 'Re'],
-                               [data_point[3], data_point[6]], ['AoA', 'CL', 'CD', 'run'],
-                               file_name='Data_txt/tail_off_data.txt')
+        data = select_data_txt(['AoS', 'Re', 'J_M1', 'dr', 'de'],
+                               [data_point[3], data_point[6], data_point[4],
+                                data_point[1], data_point[16]], ['AoA', 'CL', 'CD', 'run'],
+                               file_name='Data_txt/test_data_thrust_model_off_corr.txt')
 
         alpha = data[:, 0]
         cl = data[:, 1]
@@ -236,16 +238,46 @@ class Corrections:
         alpha = alpha[~np.isnan(cl)]
         cl = cl[~np.isnan(cl)]
 
-        plt.plot(alpha, cl)
-        plt.grid()
-        # plt.show()
 
         # Fit a line through the CL^2 - CD graph to find cd0
-        poly_cl_alpha = np.polyfit(alpha, cl, deg=1)
-        x = np.linspace(-5, 5, 100)
-        cl_a = np.gradient(x, poly_cl_alpha[0] * x + poly_cl_alpha[1])
+        poly_cl_alpha = np.polyfit(alpha, cl, deg=1)[0]
+        # x = np.linspace(-5, 5, 100)
+        # cl_a = np.gradient(x, poly_cl_alpha[0] * x + poly_cl_alpha[1])
 
-        return np.mean(cl_a)
+        return poly_cl_alpha
+
+    def CY_b(self, data_point):
+
+        # For each datapoint, keep everything constant apart from AoA, CL and CD
+        data = select_data_txt(['AoA', 'Re', 'J_M1', 'dr', 'de'],
+                               [data_point[2], data_point[6], data_point[4], data_point[1], data_point[16]],
+                               ['AoS', 'CY', 'run'],
+                               file_name='Data_txt/test_data_thrust_model_off_corr.txt')
+
+        aos = data[:, 0]
+        cy = data[:, 1]
+
+        # aos = aos[~np.isnan(cy)]
+        # cl = cy[~np.isnan(cy)]
+
+
+        # Fit a line through the CL^2 - CD graph to find cd0
+        cy_beta = np.polyfit(aos, cy, deg=1)[0]
+        # x = np.linspace(-5, 5, 100)
+        # cl_a = np.gradient(x, poly_cl_alpha[0] * x + poly_cl_alpha[1])
+
+        return cy_beta
+
+    def CY_vW(self, data_point):
+
+        # For each datapoint, keep everything constant apart from AoA, CL and CD
+        data = select_data_txt(['AoA', 'Re', 'J_M1', 'dr', 'de', 'AoS'],
+                               [data_point[2], data_point[6], data_point[4],
+                                data_point[1], data_point[16], data_point[3]],
+                               ['AoS', 'CY', 'run'],
+                               file_name='Data_txt/test_data_thrust_model_off_corr.txt')
+        CY = np.mean(data[:, 1])
+        return CY
 
     def lift_interference_main_wing(self):
         b_v = self.b_wing * 0.78
@@ -265,7 +297,7 @@ class Corrections:
         alpha_sc = 0.5 * self.wing_mac * alpha_up * tau_2
 
         CD_W = np.zeros(N_pts)
-        for i in range(1):
+        for i in range(N_pts):
             CL_w = self.CL_W(self.data[i, :])
             CD_W[i] = delta * self.S / self.C * CL_w ** 2
 
@@ -274,7 +306,29 @@ class Corrections:
             CL_a = self.CL_alpha(self.data[i, :])
             CM[i] = 1 / 8 * alpha_sc[i] * CL_a
 
+        # ### Directional
+        # beta_up = np.zeros(N_pts)
+        # delta_beta =
+        # for i in range(N_pts):
+        #     Cy_b = self.CY_b(self.data[i, :])
+        #     beta_up[i] = delta_beta * self.S / self.C * Cy_b
+        #     # alpha_up[i] = self.S * cd_0 / (4 * self.C)
+        #
+        # tau_2 = 0.135
+        # beta_sc = 0.5 * self.wing_mac * alpha_up * tau_2
+        #
+        # CD_W = np.zeros(N_pts)
+        # for i in range(1):
+        #     CY_v = self.CY_vW(self.data[i, :])
+        #     CD_W[i] = delta * self.S / self.C * CL_w ** 2
+        #
+        # CM = np.zeros(N_pts)
+        # for i in range(N_pts):
+        #     CL_a = self.CL_alpha(self.data[i, :])
+        #     CM[i] = 1 / 8 * alpha_sc[i] * CL_a
+
         return alpha_up + alpha_sc, CD_W, CM
+
 
     def down_wash(self):
         N_pts = len(self.data[:, 0])
@@ -340,7 +394,7 @@ if __name__ == '__main__':
     data_f['AoA'] = data_f['AoA'] + np.rad2deg(alpha_l)
     # print(np.rad2deg(alpha_l))
     data_f['CD'] = data_f['CD'] + CD_W_l
-
+    print(CD_W_l, alpha_l, CM_l)
     # down wash
     data_f['CMpitch'] = data_f['CMpitch'] + CM_l + CM_d
     data_f_values = data_f.values
