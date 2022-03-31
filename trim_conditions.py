@@ -3,7 +3,7 @@ from select_data import select_data_txt
 import matplotlib.pyplot as plt
 
 
-def trim(AoS, AoA, Re, J):
+def trim(AoS, AoA, Re, J, filename = 'Data_txt/Analysis_data.txt'):
     """
     Finds the lift and drag coefficients in trimmed condition at a certain angle of attack and sideslip.
     This is done using interpolation.
@@ -20,7 +20,7 @@ def trim(AoS, AoA, Re, J):
     # this should return data for at least two different rudder angles
     coeffs = select_data_txt(['AoA', 'AoS', 'Re', 'J_M1'], [AoA, AoS, Re, J],
                              ['dr', 'de', 'CL', 'CD', 'CY', 'CMpitch', 'CMyaw'],
-                             file_name='Data_txt/Analysis_data.txt')
+                             file_name=filename)
 
     # Find elevator trim
     # There is no elevator data for AoS bigger then 5, so instead use the Cmde for a lower sideslip.

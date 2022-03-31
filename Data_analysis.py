@@ -60,13 +60,13 @@ def Rudder_effectiveness():
     fig, ax = plt.subplots()
     fig1, ax1 = plt.subplots()
 
-    cn_dr_unc, cy_dr_unc, aos_unc = control_derivatives('Data_txt/test_data_thrust_model_off_corr.txt', 339000, 1.75, 0)
-    cn_dr_cor, cy_dr_cor, aos_cor = control_derivatives('Data_txt/Analysis_data.txt', 339000, 1.75, 0.2)
+    cn_dr_unc, cy_dr_unc, aos_unc = control_derivatives('Data_txt/test_data_thrust_model_off_corr.txt', 450000, 1.99, 5)
+    cn_dr_cor, cy_dr_cor, aos_cor = control_derivatives('Data_txt/Analysis_data.txt', 450000, 1.99, 5.4)
 
     ax.plot(aos_unc, cy_dr_unc, marker= 'd', label='Uncorrected', markerfacecolor='none')
     ax.plot(aos_cor, cy_dr_cor, marker= 's', label='Corrected', markerfacecolor='none')
     ax.set_xlim([-0.5, 10.5])
-    ax.set_ylim([0.0034, 0.0045])
+    ax.set_ylim([0.0024, 0.0035])
     ax.set_xlabel('Angle of Sideslip [deg]')
     ax.set_ylabel('$C_{Y_dr}$ [-]')
     ax.grid()
@@ -77,7 +77,7 @@ def Rudder_effectiveness():
     ax1.plot(aos_unc, cn_dr_unc, marker= 'd', label='Uncorrected', markerfacecolor='none')
     ax1.plot(aos_cor, cn_dr_cor, marker= 's', label='Corrected', markerfacecolor='none')
     ax1.set_xlim([-0.5, 10.5])
-    ax1.set_ylim([-0.002, -0.0014])
+    ax1.set_ylim([-0.0016, -0.0012])
     ax1.set_xlabel('Angle of Sideslip [deg]')
     ax1.set_ylabel('$C_{n_dr}$ [-]')
     ax1.grid()
@@ -200,7 +200,7 @@ def Trimming():
             ax.grid()
             ax.legend()
             fig.tight_layout()
-            fig.savefig('Figures/dr' + str(re_levels[j]) + '_aoa_' + str(aoa_levels[i]) + '.pdf')
+            fig.savefig('Figures/dr' + str(re_levels[j]) + '_aos_' + str(aoa_levels[i]) + '.pdf')
 
             plt.show()
 
@@ -209,3 +209,4 @@ def Trimming():
 
 if __name__ == '__main__':
     Trimming()
+    Rudder_effectiveness()
