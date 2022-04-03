@@ -8,7 +8,7 @@ B = 6                  # - (Number of blades)
 R_air = 287            # J/kg/K
 gamma = 1.4            # -
 Temp = 286             # K
-L_fs = 27.17           # m (Length of reference full scale aircraft, ATR72)
+# L_fs = 27.17           # m (Length of reference full scale aircraft, ATR72)
 L_mo = 1.342           # m (Length of model)
 # SF = L_mo/L_fs
 
