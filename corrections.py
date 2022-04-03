@@ -358,6 +358,8 @@ if __name__ == '__main__':
 
     e_tail_off = corr_tail_off.solid_blockage() + corr_tail_off.wake_blockage()
 
+    print((1 + e_tail_off) ** -2)
+
     # epsilon
     data_f_tail_off['V'] = data_f_tail_off['V'] * (1 + e_tail_off)
     data_f_tail_off['CL'] = data_f_tail_off['CL'] * (1 + e_tail_off) ** -2
@@ -392,6 +394,7 @@ if __name__ == '__main__':
 
     # lift interference
     data_f['AoA'] = data_f['AoA'] + np.rad2deg(alpha_l)
+
     # print(np.rad2deg(alpha_l))
     data_f['CD'] = data_f['CD'] + CD_W_l
     print(CD_W_l, alpha_l, CM_l)

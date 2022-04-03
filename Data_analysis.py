@@ -4,6 +4,7 @@ from trim_conditions import trim
 import matplotlib.pyplot as plt
 from select_data import select_data_txt
 
+plt.rcParams.update({'font.size': 18})
 
 
 
@@ -165,15 +166,15 @@ def Rudder_effectiveness():
     fig, ax = plt.subplots()
     fig1, ax1 = plt.subplots()
 
-    cn_dr_unc, cy_dr_unc, aos_unc = control_derivatives('Data_txt/test_data_thrust_model_off_corr.txt', 339000, 1.75, 0)
-    cn_dr_cor, cy_dr_cor, aos_cor = control_derivatives('Data_txt/Analysis_data.txt', 339000, 1.75, 0.2)
+    cn_dr_unc, cy_dr_unc, aos_unc = control_derivatives('Data_txt/test_data_thrust_model_off_corr.txt', 450000, 1.99, 5)
+    cn_dr_cor, cy_dr_cor, aos_cor = control_derivatives('Data_txt/Analysis_data.txt', 450000, 1.99, 5.4)
 
     ax.plot(aos_unc, cy_dr_unc, marker= 'd', label='Uncorrected', markerfacecolor='none')
     ax.plot(aos_cor, cy_dr_cor, marker= 's', label='Corrected', markerfacecolor='none')
     ax.set_xlim([-0.5, 10.5])
     ax.set_ylim([0.0024, 0.0035])
     ax.set_xlabel('Angle of Sideslip [deg]')
-    ax.set_ylabel('$C_{Y_dr}$ [-]')
+    ax.set_ylabel('$C_{Y_{\delta r}}$ [-]')
 
     ax.grid()
     ax.legend()
@@ -186,11 +187,10 @@ def Rudder_effectiveness():
     ax1.set_xlim([-0.5, 10.5])
     ax1.set_ylim([-0.0016, -0.0012])
     ax1.set_xlabel('Angle of Sideslip [deg]')
-    ax1.set_ylabel('$C_{n_dr}$ [-]')
+    ax1.set_ylabel('$C_{n_{\delta r}}$ [-]')
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax1.grid()
     ax1.legend()
-
     fig1.tight_layout()
     fig1.savefig('Figures/Rudder_effectiveness/cn_dr_comp.pdf')
 
@@ -257,7 +257,7 @@ def Rudder_effectiveness():
             ax.set_xlim([-0.5, 10.5])
             ax.set_ylim([0.0026, 0.004])
             ax.set_xlabel('Angle of Sideslip [deg]')
-            ax.set_ylabel('$C_{Y_dr}$ [-]')
+            ax.set_ylabel('$C_{Y_{\delta r}}$ [-]')
             ax.grid()
             ax.legend()
             ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -269,7 +269,7 @@ def Rudder_effectiveness():
             ax1.set_xlim([-0.5, 10.5])
             ax1.set_ylim([-0.0017, -0.0010])
             ax1.set_xlabel('Angle of Sideslip [deg]')
-            ax1.set_ylabel('$C_{n_dr}$ [-]')
+            ax1.set_ylabel('$C_{n_{\delta r}}$ [-]')
             ax1.grid()
             ax1.legend()
             ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -314,6 +314,7 @@ def Trimming():
                     result = select_data_txt(['AoA', 'Re', 'J_M1', 'AoS', 'de', 'dr'],
                                          [aoa_levels[i], re_levels[j], j_levels[k], aos[m], 0, 0], ['CD', 'CL'],
                                          file_name='Data_txt/Analysis_data.txt')
+
                     cdcl_trim[m] = np.mean(result[:, 1]/result[:, 0])
 
                 ax.plot(aos, dr_trim, marker=markers[k], label='J =' + str(j_levels[k]),
@@ -394,6 +395,6 @@ def Trimming():
 
 
 if __name__ == '__main__':
-    # Rudder_effectiveness()
-    # Direction_stability()
     Trimming()
+    Rudder_effectiveness()
+    Direction_stability()
