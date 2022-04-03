@@ -8,9 +8,9 @@ B = 6                  # - (Number of blades)
 R_air = 287            # J/kg/K
 gamma = 1.4            # -
 Temp = 286             # K
-L_fs = 27.16           # m (Length of reference full scale aircraft, ATR72)
+L_fs = 27.17           # m (Length of reference full scale aircraft, ATR72)
 L_mo = 1.342           # m (Length of model)
-SF = L_mo/L_fs
+# SF = L_mo/L_fs
 
 R = np.array([163.9, 151.9, 150.9, 152.6, 157.0, 164.7]) / 1000  # Distance from the microphones to  propeller
 Theta = np.deg2rad(np.array([60, 75, 82.5, 90, 97.5, 105.0]))    # Angle from the microphones to  propeller
@@ -87,12 +87,14 @@ R_prim4 = R[3] / (-M * np.cos(Theta[3]) + np.sqrt(M**2 * np.cos(Theta[3])**2 - M
 R_prim5 = R[4] / (-M * np.cos(Theta[4]) + np.sqrt(M**2 * np.cos(Theta[4])**2 - M**2 + 1))
 R_prim6 = R[5] / (-M * np.cos(Theta[5]) + np.sqrt(M**2 * np.cos(Theta[5])**2 - M**2 + 1))
 
-SPL_corr_mic1 = SPL_mic1 + 20 * np.log10(R_prim1[0]/R_ref) + 20 * np.log10(1/SF)
-SPL_corr_mic2 = SPL_mic2 + 20 * np.log10(R_prim2[1]/R_ref) + 20 * np.log10(1/SF)
-SPL_corr_mic3 = SPL_mic3 + 20 * np.log10(R_prim3[2]/R_ref) + 20 * np.log10(1/SF)
+# print(np.max(R_prim6), 'hfg')
+
+SPL_corr_mic1 = SPL_mic1 + 20 * np.log10(R_prim1[0]/R_ref)  # + 20 * np.log10(1/SF)
+SPL_corr_mic2 = SPL_mic2 + 20 * np.log10(R_prim2[1]/R_ref)  # + 20 * np.log10(1/SF)
+SPL_corr_mic3 = SPL_mic3 + 20 * np.log10(R_prim3[2]/R_ref)  # + 20 * np.log10(1/SF)
 # SPL_corr_mic4 = SPL_mic4 + 20 * np.log10(R_prim4[3]/R_ref) + 20 * np.log10(1/SF)
 # SPL_corr_mic5 = SPL_mic5 + 20 * np.log10(R_prim5[4]/R_ref) + 20 * np.log10(1/SF)
-SPL_corr_mic6 = SPL_mic6 + 20 * np.log10(R_prim6[5]/R_ref) + 20 * np.log10(1/SF)
+SPL_corr_mic6 = SPL_mic6 + 20 * np.log10(R_prim6[5]/R_ref)  # + 20 * np.log10(1/SF)
 
 # print(SPL_mic1[0][0:5])
 # print(SPL_corr_mic1[0][0:5])
@@ -421,8 +423,8 @@ def plotting_noise(AdvRat=True, aoa=True, aos=True, speed=True, dr=True, repeate
         # plt.axvline(1, color='k', linestyle=(0, (5, 5)), linewidth=0.7, label='BPF')
         # plt.axvline(2, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
         # plt.axvline(3, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
-        plt.plot(f_scaled[3], SPL_pi_1[3], label='V = 30 m/s', linewidth=0.6, color='tab:blue')
-        plt.plot(f_scaled[26], SPL_pi_1[26], label='V = 40 m/s', linewidth=0.6, color='tab:red')
+        plt.plot(f_scaled[3], SPL_pi_1[3], label='Re = 3.4e5 (V = 30 m/s)', linewidth=0.6, color='tab:blue')
+        plt.plot(f_scaled[26], SPL_pi_1[26], label='Re = 4.5e5 (V = 40 m/s)', linewidth=0.6, color='tab:red')
         plt.axvline(1, color='k', linestyle=(0, (5, 5)), linewidth=0.7, label='BPF')
         plt.axvline(2, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
         plt.axvline(3, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
@@ -437,8 +439,8 @@ def plotting_noise(AdvRat=True, aoa=True, aos=True, speed=True, dr=True, repeate
         plt.legend()
 
         plt.subplot(2, 2, 2)
-        plt.plot(f_scaled[3], SPL_pi_2[3], label='V = 30 m/s', linewidth=0.6, color='tab:blue')
-        plt.plot(f_scaled[26], SPL_pi_2[26], label='V = 40 m/s', linewidth=0.6, color='tab:red')
+        plt.plot(f_scaled[3], SPL_pi_2[3], label='Re = 3.4e5 (V = 30 m/s)', linewidth=0.6, color='tab:blue')
+        plt.plot(f_scaled[26], SPL_pi_2[26], label='Re = 4.5e5 (V = 40 m/s)', linewidth=0.6, color='tab:red')
         plt.axvline(1, color='k', linestyle=(0, (5, 5)), linewidth=0.7, label='BPF')
         plt.axvline(2, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
         plt.axvline(3, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
@@ -451,8 +453,8 @@ def plotting_noise(AdvRat=True, aoa=True, aos=True, speed=True, dr=True, repeate
         plt.legend()
 
         plt.subplot(2, 2, 3)
-        plt.plot(f_scaled[3], SPL_pi_3[3], label='V = 30 m/s', linewidth=0.6, color='tab:blue')
-        plt.plot(f_scaled[26], SPL_pi_3[26], label='V = 40 m/s', linewidth=0.6, color='tab:red')
+        plt.plot(f_scaled[3], SPL_pi_3[3], label='Re = 3.4e5 (V = 30 m/s)', linewidth=0.6, color='tab:blue')
+        plt.plot(f_scaled[26], SPL_pi_3[26], label='Re = 4.5e5 (V = 40 m/s)', linewidth=0.6, color='tab:red')
         plt.axvline(1, color='k', linestyle=(0, (5, 5)), linewidth=0.7, label='BPF')
         plt.axvline(2, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
         plt.axvline(3, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
@@ -465,8 +467,8 @@ def plotting_noise(AdvRat=True, aoa=True, aos=True, speed=True, dr=True, repeate
         plt.legend()
 
         plt.subplot(2, 2, 4)
-        plt.plot(f_scaled[3], SPL_pi_6[3], label='V = 30 m/s', linewidth=0.6, color='tab:blue')
-        plt.plot(f_scaled[26], SPL_pi_6[26], label='V = 40 m/s', linewidth=0.6, color='tab:red')
+        plt.plot(f_scaled[3], SPL_pi_6[3], label='Re = 3.4e5 (V = 30 m/s)', linewidth=0.6, color='tab:blue')
+        plt.plot(f_scaled[26], SPL_pi_6[26], label='Re = 4.5e5 (V = 40 m/s)', linewidth=0.6, color='tab:red')
         plt.axvline(1, color='k', linestyle=(0, (5, 5)), linewidth=0.7, label='BPF')
         plt.axvline(2, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
         plt.axvline(3, color='k', linestyle=(0, (5, 5)), linewidth=0.7)
